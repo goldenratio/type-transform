@@ -4,7 +4,7 @@ use std::{fs, path::Path};
 
 use clap::Parser;
 
-use languages::{swift_transformer::SwiftTransformer, transformer::LanguageTransformer};
+use languages::transformer::{LanguageTransformFactory, LanguageType};
 use oxc_allocator::Allocator;
 use oxc_parser::{ParseOptions, Parser as OxcParser};
 use oxc_span::SourceType;
@@ -50,7 +50,7 @@ fn main() {
   println!("{}", serde_json::to_string_pretty(&program).unwrap());
 
   if ret.errors.is_empty() {
-    let transformed_code = SwiftTransformer::transform(&program);
+    let transformed_code = LanguageTransformFactory::transform(LanguageType::Swift, &program);
     println!("transformed code,\n{:?}", transformed_code);
   } else {
     for error in ret.errors {
