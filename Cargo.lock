@@ -65,19 +65,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7330592adf847ee2e3513587b4db2db410a0d751378654e7e993d9adcbe5c795"
 
 [[package]]
-name = "ast-parser-demo"
-version = "0.1.0"
-dependencies = [
- "clap",
- "oxc_allocator",
- "oxc_ast",
- "oxc_parser",
- "oxc_span",
- "serde",
- "serde_json",
-]
-
-[[package]]
 name = "autocfg"
 version = "1.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -662,6 +649,19 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn",
+]
+
+[[package]]
+name = "type-transform"
+version = "0.1.0"
+dependencies = [
+ "clap",
+ "oxc_allocator",
+ "oxc_ast",
+ "oxc_parser",
+ "oxc_span",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]
