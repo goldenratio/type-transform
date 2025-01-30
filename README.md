@@ -1,6 +1,6 @@
 # ts-transform
 
-> Transform TypeScript types to Swift types
+> Convert TypeScript types to other language types
 
 ## Usage
 
