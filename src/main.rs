@@ -5,7 +5,7 @@ use std::{fs, path::Path};
 
 use clap::Parser;
 
-use languages::transformer::LanguageTransformFactory;
+use languages::language_factory::LanguageFactory;
 use oxc_allocator::Allocator;
 use oxc_parser::{ParseOptions, Parser as OxcParser};
 use oxc_span::SourceType;
@@ -53,7 +53,7 @@ fn main() {
   println!("{}", serde_json::to_string_pretty(&program).unwrap());
 
   if ret.errors.is_empty() {
-    let transformed_code = LanguageTransformFactory::transform(destination_language, &program);
+    let transformed_code = LanguageFactory::transform(destination_language, &program);
     println!("transformed code,\n{:?}", transformed_code);
   } else {
     for error in ret.errors {

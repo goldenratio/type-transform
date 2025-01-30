@@ -20,9 +20,9 @@ impl From<&str> for LanguageType {
   }
 }
 
-pub struct LanguageTransformFactory;
+pub struct LanguageFactory;
 
-impl LanguageTransformFactory {
+impl LanguageFactory {
   pub fn transform(language_type: LanguageType, ast_program: &Program) -> String {
     match language_type {
       LanguageType::Swift => SwiftTransformer::transform(ast_program),
