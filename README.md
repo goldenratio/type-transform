@@ -1,4 +1,4 @@
-# ts-transform
+# type-transform
 
 > Convert TypeScript types to other language types
 
