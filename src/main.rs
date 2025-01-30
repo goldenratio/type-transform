@@ -1,13 +1,15 @@
 mod languages;
+mod utils;
 
 use std::{fs, path::Path};
 
 use clap::Parser;
 
-use languages::transformer::{LanguageTransformFactory, LanguageType};
+use languages::transformer::LanguageTransformFactory;
 use oxc_allocator::Allocator;
 use oxc_parser::{ParseOptions, Parser as OxcParser};
 use oxc_span::SourceType;
+use utils::file_utils::get_language_from_file_name;
 
 /// Convert TypeScript types to swift,kotlin, etc..
 #[derive(Parser, Debug)]
@@ -39,6 +41,7 @@ fn main() {
     .parse();
 
   let program = ret.program;
+  let destination_language = get_language_from_file_name(&args.out);
 
   // println!("Comments:");
   // for comment in &program.comments {
@@ -50,7 +53,7 @@ fn main() {
   println!("{}", serde_json::to_string_pretty(&program).unwrap());
 
   if ret.errors.is_empty() {
-    let transformed_code = LanguageTransformFactory::transform(LanguageType::Swift, &program);
+    let transformed_code = LanguageTransformFactory::transform(destination_language, &program);
     println!("transformed code,\n{:?}", transformed_code);
   } else {
     for error in ret.errors {
