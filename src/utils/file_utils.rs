@@ -1,9 +1,9 @@
-use crate::languages::language_factory::{LanguageType, DEFAULT_LANGUAGE};
+use crate::languages::language_factory::LanguageType;
 
-pub fn get_language_from_file_name(file_name: &str) -> LanguageType {
+pub fn get_language_from_file_name(file_name: &str) -> Option<LanguageType> {
   let ext = file_name.split(".").last();
   match ext {
-    Some(val) => LanguageType::from(val),
-    None => DEFAULT_LANGUAGE,
+    Some(val) => LanguageType::try_from(val.to_owned()).ok(),
+    None => Option::None,
   }
 }

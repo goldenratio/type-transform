@@ -41,9 +41,11 @@ fn main() {
     .parse();
 
   let program = ret.program;
-  let destination_language = get_language_from_file_name(&args.out);
+  let destination_language =
+    get_language_from_file_name(&args.out).expect("unable to detect target language from fileName");
 
-  // println!("Comments:");
+  // println!("destionation_language: {:?}", destination_language);
+
   // for comment in &program.comments {
   //   let s = comment.content_span().source_text(&source_text);
   //   println!("{s}");

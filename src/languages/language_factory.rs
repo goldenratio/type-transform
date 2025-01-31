@@ -2,20 +2,20 @@ use oxc_ast::ast::Program;
 
 use super::{kotlin_transformer::KotlinTransformer, swift_transformer::SwiftTransformer};
 
-pub const DEFAULT_LANGUAGE: LanguageType = LanguageType::Swift;
-
 pub enum LanguageType {
   Swift,
   Kotlin,
 }
 
-impl From<&str> for LanguageType {
-  fn from(value: &str) -> Self {
-    match value {
-      "swift" => LanguageType::Swift,
-      "kt" => LanguageType::Kotlin,
-      "kts" => LanguageType::Kotlin,
-      _ => DEFAULT_LANGUAGE,
+impl TryFrom<String> for LanguageType {
+  type Error = &'static str;
+
+  fn try_from(value: String) -> Result<Self, Self::Error> {
+    match value.as_str() {
+      "swift" => Ok(LanguageType::Swift),
+      "kt" => Ok(LanguageType::Kotlin),
+      "kts" => Ok(LanguageType::Kotlin),
+      _ => Err("unknown language!"),
     }
   }
 }
