@@ -5,7 +5,7 @@
 ## Usage
 
 ```
-type-transform --out <OUT> <SRC>
+type-transform <SRC> --out <OUT>
 ```
 
 ```
