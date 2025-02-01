@@ -21,10 +21,10 @@ Options:
 
 Example:
 ```sh
-type-transform --out hello-world.swift hello-world.ts
+type-transform hello-world.ts --out hello-world.swift
 ```
 
-### Supported Languages
+### Supported Target Languages
 
 - Swift
 - Kotlin
