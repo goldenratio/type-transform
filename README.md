@@ -4,7 +4,9 @@
 
 ## Usage
 
-> type-transform --out <OUT> <SRC>
+```
+type-transform --out <OUT> <SRC>
+```
 
 ```
 Arguments:
@@ -19,7 +21,7 @@ Options:
 
 Example:
 ```sh
-type-transform -o hello-world.swift hello-world.ts
+type-transform --out hello-world.swift hello-world.ts
 ```
 
 ### Supported Languages
