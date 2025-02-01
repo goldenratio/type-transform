@@ -13,6 +13,7 @@ impl TryFrom<String> for LanguageType {
   fn try_from(value: String) -> Result<Self, Self::Error> {
     match value.as_str() {
       "swift" => Ok(LanguageType::Swift),
+      "kotlin" => Ok(LanguageType::Kotlin),
       "kt" => Ok(LanguageType::Kotlin),
       "kts" => Ok(LanguageType::Kotlin),
       _ => Err("unknown language!"),

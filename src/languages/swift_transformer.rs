@@ -8,7 +8,7 @@ impl SwiftTransformer {
 
     for statement in &ast_program.body {
       match statement {
-        Statement::ExportNamedDeclaration(export_decl) => {
+        Statement::ExportNamedDeclaration(_export_decl) => {
           // println!("Found a export declaration: {:?}", export_decl.specifiers);
         }
         Statement::TSInterfaceDeclaration(interface_decl) => {
