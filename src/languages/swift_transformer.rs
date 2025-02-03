@@ -106,33 +106,34 @@ impl SwiftType for TSSignature<'_> {
   }
 }
 
+impl SwiftType for Statement<'_> {
+  fn to_swift_type(&self) -> String {
+    match self {
+      Statement::ExportNamedDeclaration(_export_decl) => "export-not-supported".to_string(),
+      Statement::TSInterfaceDeclaration(interface_decl) => {
+        let body_data = interface_decl
+          .body
+          .body
+          .iter()
+          .map(|signature| signature.to_swift_type())
+          .collect::<Vec<_>>()
+          .join("\n");
+
+        let protocol_name: String = interface_decl.id.name.to_string();
+        format!("protocol {} {{\n{}\n}}\n\n", protocol_name, body_data)
+      }
+      _ => "uknown-statement".to_string(),
+    }
+  }
+}
+
 impl SwiftTransformer {
   pub fn transform(ast_program: &Program) -> String {
     let mut output = String::new();
 
     for statement in &ast_program.body {
-      match statement {
-        Statement::ExportNamedDeclaration(_export_decl) => {
-          // println!("Found a export declaration: {:?}", export_decl.specifiers);
-        }
-        Statement::TSInterfaceDeclaration(interface_decl) => {
-          let body_data = interface_decl
-            .body
-            .body
-            .iter()
-            .map(|signature| signature.to_swift_type())
-            .collect::<Vec<_>>()
-            .join("\n");
-
-          let protocol_name: String = interface_decl.id.name.to_string();
-          let code = format!("protocol {} {{\n{}\n}}\n\n", protocol_name, body_data);
-
-          output.push_str(&code);
-        }
-        _ => {
-          // ignore classes, functions, etc.. (we are only interesetd in types/interfaces)
-        }
-      }
+      let statement_code = statement.to_swift_type();
+      output.push_str(&statement_code);
     }
 
     output
