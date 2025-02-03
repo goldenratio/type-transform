@@ -9,7 +9,7 @@ use languages::language_factory::LanguageFactory;
 use oxc_allocator::Allocator;
 use oxc_parser::{ParseOptions, Parser as OxcParser};
 use oxc_span::SourceType;
-use utils::file_utils::get_language_from_file_name;
+use utils::{content_utils::get_content_banner_header, file_utils::get_language_from_file_name};
 
 /// Convert TypeScript types to swift,kotlin, etc..
 #[derive(Parser, Debug)]
@@ -56,7 +56,14 @@ fn main() {
 
   if ret.errors.is_empty() {
     let transformed_code = LanguageFactory::transform(destination_language, &program);
-    println!("transformed code,\n{:?}", transformed_code);
+    let out_path = Path::new(&args.out);
+    let banner_header = get_content_banner_header();
+    let updated_content = format!("{}\n{}", banner_header, transformed_code);
+    let res = fs::write(out_path, updated_content);
+    match res {
+      Ok(_) => println!("success"),
+      Err(_) => println!("failed to write to file!!"),
+    }
   } else {
     for error in ret.errors {
       let error = error.with_source_code(source_text.clone());
