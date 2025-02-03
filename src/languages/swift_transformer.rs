@@ -37,6 +37,7 @@ impl SwiftType for TSType<'_> {
         format!("[{}]", arr_type.element_type.to_swift_type())
       }
       TSType::TSTypeReference(val) => val.type_name.to_string(),
+      TSType::TSVoidKeyword(_) => "Void".to_string(),
       // Fallback (types, that we are not interested)
       _ => "Any".to_string(),
     }
@@ -49,16 +50,19 @@ impl SwiftType for TSSignature<'_> {
     match self {
       TSSignature::TSPropertySignature(prop_sig) => {
         let key = prop_sig.key.to_swift_type();
-        let var_or_let = "let";
+        let var = "var";
         let type_annotation = prop_sig
           .type_annotation
           .as_ref()
           .map(|annotation| annotation.type_annotation.to_swift_type())
           .unwrap_or_else(|| "Any".to_string());
 
+        let optional = if prop_sig.optional { "?" } else { "" };
+        let get_set_value = if prop_sig.readonly { "get" } else { "get set" };
+
         format!(
-          "{}{} {}: {}",
-          INDENT_VALUE, var_or_let, key, type_annotation
+          "{}{} {}: {}{} {{ {} }}",
+          INDENT_VALUE, var, key, type_annotation, optional, get_set_value
         )
       }
       TSSignature::TSMethodSignature(val) => {
@@ -83,11 +87,18 @@ impl SwiftType for TSSignature<'_> {
           .collect::<Vec<_>>()
           .join(", ");
 
+        let return_type = val
+          .return_type
+          .as_ref()
+          .map(|r| format!(" -> {}", r.type_annotation.to_swift_type()))
+          .unwrap_or_else(|| "".to_string());
+
         format!(
-          "{}func {}({})",
+          "{}func {}({}){}",
           INDENT_VALUE,
           val.key.to_swift_type(),
-          params
+          params,
+          return_type
         )
       }
       _ => "unknown signature".to_owned(),
@@ -114,7 +125,7 @@ impl SwiftTransformer {
             .join("\n");
 
           let protocol_name: String = interface_decl.id.name.to_string();
-          let code = format!("protocol {} {{\n{}\n}}\n", protocol_name, body_data);
+          let code = format!("protocol {} {{\n{}\n}}\n\n", protocol_name, body_data);
 
           output.push_str(&code);
         }
