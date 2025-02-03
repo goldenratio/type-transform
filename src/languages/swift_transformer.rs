@@ -2,7 +2,7 @@ use oxc_ast::ast::{BindingPatternKind, Program, PropertyKey, Statement, TSSignat
 
 pub struct SwiftTransformer;
 
-const INDENT_VALUE: &str = "  ";
+const INDENT_SPACE: &str = "  ";
 
 trait SwiftType {
   fn to_swift_type(&self) -> String;
@@ -62,7 +62,7 @@ impl SwiftType for TSSignature<'_> {
 
         format!(
           "{}{} {}: {}{} {{ {} }}",
-          INDENT_VALUE, var, key, type_annotation, optional, get_set_value
+          INDENT_SPACE, var, key, type_annotation, optional, get_set_value
         )
       }
       TSSignature::TSMethodSignature(val) => {
@@ -95,7 +95,7 @@ impl SwiftType for TSSignature<'_> {
 
         format!(
           "{}func {}({}){}",
-          INDENT_VALUE,
+          INDENT_SPACE,
           val.key.to_swift_type(),
           params,
           return_type
