@@ -31,7 +31,6 @@ impl SwiftType for BindingPatternKind<'_> {
 
 impl SwiftType for TSType<'_> {
   fn to_swift_type(&self) -> String {
-    // type mapping from TypeScript to Swift
     match self {
       TSType::TSStringKeyword(_) => "String".to_string(),
       TSType::TSNumberKeyword(_) => "Double".to_string(),
@@ -41,7 +40,6 @@ impl SwiftType for TSType<'_> {
       }
       TSType::TSTypeReference(val) => val.type_name.to_string(),
       TSType::TSVoidKeyword(_) => "Void".to_string(),
-      // Fallback (types, that we are not interested)
       _ => "Any".to_string(),
     }
   }
@@ -49,7 +47,6 @@ impl SwiftType for TSType<'_> {
 
 impl SwiftType for TSSignature<'_> {
   fn to_swift_type(&self) -> String {
-    // map typescript signature to swift
     match self {
       TSSignature::TSPropertySignature(prop_sig) => {
         let key = prop_sig.key.to_swift_type();
