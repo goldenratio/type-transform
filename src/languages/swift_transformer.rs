@@ -1,4 +1,7 @@
-use oxc_ast::ast::{BindingPatternKind, Program, PropertyKey, Statement, TSSignature, TSType};
+use oxc_ast::ast::{
+  BindingPatternKind, Declaration, ExportNamedDeclaration, Program, PropertyKey, Statement,
+  TSInterfaceDeclaration, TSSignature, TSType,
+};
 
 pub struct SwiftTransformer;
 
@@ -12,7 +15,7 @@ impl SwiftType for PropertyKey<'_> {
   fn to_swift_type(&self) -> String {
     match self {
       PropertyKey::StaticIdentifier(id_name) => id_name.name.to_owned().into(),
-      _ => "unknown id_name".to_owned(),
+      _ => "unknown-id_name".to_owned(),
     }
   }
 }
@@ -21,7 +24,7 @@ impl SwiftType for BindingPatternKind<'_> {
   fn to_swift_type(&self) -> String {
     match self {
       BindingPatternKind::BindingIdentifier(val) => val.name.to_string(),
-      _ => "uknown BindingPatternKind".to_owned(),
+      _ => "uknown-BindingPatternKind".to_owned(),
     }
   }
 }
@@ -101,27 +104,50 @@ impl SwiftType for TSSignature<'_> {
           return_type
         )
       }
-      _ => "unknown signature".to_owned(),
+      _ => "unknown-signature".to_owned(),
     }
+  }
+}
+
+impl SwiftType for Declaration<'_> {
+  fn to_swift_type(&self) -> String {
+    match self {
+      Declaration::TSInterfaceDeclaration(interface_decl) => interface_decl.to_swift_type(),
+      _ => "unknown-declartion".to_string(),
+    }
+  }
+}
+
+impl SwiftType for TSInterfaceDeclaration<'_> {
+  fn to_swift_type(&self) -> String {
+    let body_data = self
+      .body
+      .body
+      .iter()
+      .map(|signature| signature.to_swift_type())
+      .collect::<Vec<_>>()
+      .join("\n");
+
+    let protocol_name: String = self.id.name.to_string();
+    format!("protocol {} {{\n{}\n}}\n\n", protocol_name, body_data)
+  }
+}
+
+impl SwiftType for ExportNamedDeclaration<'_> {
+  fn to_swift_type(&self) -> String {
+    self
+      .declaration
+      .as_ref()
+      .map(|d| d.to_swift_type())
+      .unwrap_or_else(|| "unknown-export-named-declaration".to_string())
   }
 }
 
 impl SwiftType for Statement<'_> {
   fn to_swift_type(&self) -> String {
     match self {
-      Statement::ExportNamedDeclaration(_export_decl) => "export-not-supported".to_string(),
-      Statement::TSInterfaceDeclaration(interface_decl) => {
-        let body_data = interface_decl
-          .body
-          .body
-          .iter()
-          .map(|signature| signature.to_swift_type())
-          .collect::<Vec<_>>()
-          .join("\n");
-
-        let protocol_name: String = interface_decl.id.name.to_string();
-        format!("protocol {} {{\n{}\n}}\n\n", protocol_name, body_data)
-      }
+      Statement::ExportNamedDeclaration(export_decl) => export_decl.to_swift_type(),
+      Statement::TSInterfaceDeclaration(interface_decl) => interface_decl.to_swift_type(),
       _ => "uknown-statement".to_string(),
     }
   }
