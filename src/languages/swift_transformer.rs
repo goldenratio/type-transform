@@ -14,7 +14,7 @@ trait SwiftType {
 impl SwiftType for PropertyKey<'_> {
   fn to_swift_type(&self) -> String {
     match self {
-      PropertyKey::StaticIdentifier(id_name) => id_name.name.to_owned().into(),
+      PropertyKey::StaticIdentifier(id_name) => id_name.name.to_string(),
       _ => "unknown-id_name".to_owned(),
     }
   }
