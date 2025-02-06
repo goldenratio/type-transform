@@ -35,26 +35,25 @@ impl SwiftType for BindingPatternKind<'_> {
 impl SwiftType for TSTypeReference<'_> {
   fn to_swift_type(&self) -> String {
     let type_name = self.type_name.to_string();
-    if type_name == "Promise" {
-      let async_return_type = self
+    match type_name.as_str() {
+      "Promise" => self
         .type_parameters
         .as_ref()
         .and_then(|x| x.params.first())
         .map(|x| x.to_swift_type())
-        .unwrap_or_else(|| "Any".to_string());
+        .unwrap_or_else(|| "Any".into()),
 
-      async_return_type
-    } else if type_name == "Array" {
-      let return_param_type = self
-        .type_parameters
-        .as_ref()
-        .and_then(|x| x.params.first())
-        .map(|x| x.to_swift_type())
-        .unwrap_or_else(|| "Any".to_string());
+      "Array" => format!(
+        "[{}]",
+        self
+          .type_parameters
+          .as_ref()
+          .and_then(|x| x.params.first())
+          .map(|x| x.to_swift_type())
+          .unwrap_or_else(|| "Any".into())
+      ),
 
-      format!("[{}]", return_param_type)
-    } else {
-      type_name
+      _ => type_name,
     }
   }
 }
