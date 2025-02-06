@@ -1,22 +1,16 @@
 use oxc_ast::ast::{
-  BindingPatternKind, Declaration, ExportNamedDeclaration, Program, PropertyKey, Statement,
-  TSInterfaceDeclaration, TSPropertySignature, TSSignature, TSType, TSTypeReference,
+  BindingPatternKind, Declaration, ExportNamedDeclaration, PropertyKey, Statement,
+  TSInterfaceDeclaration, TSSignature, TSType, TSTypeReference,
 };
 
-pub struct SwiftTransformer;
+use crate::languages::swift::{
+  swift_fn_return_type_trait::SwiftFunctionReturnType, swift_is_async_trait::IsAsyncType,
+};
 
 const INDENT_SPACE: &str = "  ";
 
-trait SwiftType {
+pub trait SwiftType {
   fn to_swift_type(&self) -> String;
-}
-
-trait SwiftFunctionReturnType {
-  fn to_swift_fn_return_type(&self) -> String;
-}
-
-trait IsAsyncType {
-  fn is_async_type(&self) -> bool;
 }
 
 impl SwiftType for PropertyKey<'_> {
@@ -34,13 +28,6 @@ impl SwiftType for BindingPatternKind<'_> {
       BindingPatternKind::BindingIdentifier(val) => val.name.to_string(),
       _ => "uknown-BindingPatternKind".to_owned(),
     }
-  }
-}
-
-impl IsAsyncType for TSTypeReference<'_> {
-  fn is_async_type(&self) -> bool {
-    let type_name = self.type_name.to_string();
-    type_name == "Promise"
   }
 }
 
@@ -62,17 +49,6 @@ impl SwiftType for TSTypeReference<'_> {
   }
 }
 
-impl IsAsyncType for TSType<'_> {
-  fn is_async_type(&self) -> bool {
-    match self {
-      TSType::TSTypeReference(val) => {
-        let type_name = val.type_name.to_string();
-        type_name == "Promise"
-      }
-      _ => false,
-    }
-  }
-}
 impl SwiftType for TSType<'_> {
   fn to_swift_type(&self) -> String {
     match self {
@@ -83,36 +59,6 @@ impl SwiftType for TSType<'_> {
       TSType::TSVoidKeyword(_) => "Void".to_string(),
       _ => "Any".to_string(),
     }
-  }
-}
-
-impl SwiftFunctionReturnType for TSType<'_> {
-  fn to_swift_fn_return_type(&self) -> String {
-    match self {
-      TSType::TSStringKeyword(_) => " -> String".to_string(),
-      TSType::TSNumberKeyword(_) => " -> Double".to_string(),
-      TSType::TSBooleanKeyword(_) => " -> Bool".to_string(),
-      TSType::TSTypeReference(val) => {
-        let type_name = val.to_swift_type();
-        if val.is_async_type() {
-          format!(" async throws -> {}", type_name)
-        } else {
-          format!(" -> {}", type_name)
-        }
-      }
-      TSType::TSVoidKeyword(_) => " -> Void".to_string(),
-      _ => " -> Any".to_string(),
-    }
-  }
-}
-
-impl IsAsyncType for TSPropertySignature<'_> {
-  fn is_async_type(&self) -> bool {
-    self
-      .type_annotation
-      .as_ref()
-      .map(|annotation| annotation.type_annotation.is_async_type())
-      .unwrap_or_default()
   }
 }
 
@@ -222,18 +168,5 @@ impl SwiftType for Statement<'_> {
       Statement::TSInterfaceDeclaration(interface_decl) => interface_decl.to_swift_type(),
       _ => "uknown-statement".to_string(),
     }
-  }
-}
-
-impl SwiftTransformer {
-  pub fn transform(ast_program: &Program) -> String {
-    let mut output = String::new();
-
-    for statement in &ast_program.body {
-      let statement_code = statement.to_swift_type();
-      output.push_str(&statement_code);
-    }
-
-    output
   }
 }

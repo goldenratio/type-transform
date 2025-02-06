@@ -1,6 +1,8 @@
 use oxc_ast::ast::Program;
 
-use super::{kotlin_transformer::KotlinTransformer, swift_transformer::SwiftTransformer};
+use super::{
+  kotlin::kotlin_transformer::KotlinTransformer, swift::swift_transformer::SwiftTransformer,
+};
 
 pub enum LanguageType {
   Swift,
