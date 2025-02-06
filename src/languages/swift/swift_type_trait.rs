@@ -44,6 +44,15 @@ impl SwiftType for TSTypeReference<'_> {
         .unwrap_or_else(|| "Any".to_string());
 
       async_return_type
+    } else if type_name == "Array" {
+      let return_param_type = self
+        .type_parameters
+        .as_ref()
+        .and_then(|x| x.params.first())
+        .map(|x| x.to_swift_type())
+        .unwrap_or_else(|| "Any".to_string());
+
+      format!("[{}]", return_param_type)
     } else {
       type_name
     }
@@ -79,12 +88,12 @@ impl SwiftType for TSSignature<'_> {
         let optional = if prop_sig.optional { "?" } else { "" };
         let get_set_value = if prop_sig.readonly { "get" } else { "get set" };
         let async_values = if prop_sig.is_async_type() {
-          "async throw"
+          " async throw"
         } else {
           ""
         };
 
-        let accessor_parts = [optional, "{", get_set_value, async_values, "}"].join(" ");
+        let accessor_parts = format!("{} {{ {}{} }}", optional, get_set_value, async_values);
         let swift_prop_sig = format!("{}{}", type_annotation, accessor_parts);
 
         format!("{}{} {}: {}", INDENT_SPACE, var, prop_name, swift_prop_sig)
