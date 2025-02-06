@@ -14,10 +14,7 @@ impl IsAsyncType for TSTypeReference<'_> {
 impl IsAsyncType for TSType<'_> {
   fn is_async_type(&self) -> bool {
     match self {
-      TSType::TSTypeReference(val) => {
-        let type_name = val.type_name.to_string();
-        type_name == "Promise"
-      }
+      TSType::TSTypeReference(val) => val.is_async_type(),
       _ => false,
     }
   }

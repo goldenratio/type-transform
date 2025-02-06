@@ -18,7 +18,7 @@ impl SwiftType for PropertyKey<'_> {
   fn to_swift_type(&self) -> String {
     match self {
       PropertyKey::StaticIdentifier(id_name) => id_name.name.to_string(),
-      _ => "unknown-id_name".to_owned(),
+      _ => "unknown-PropertyKey".to_owned(),
     }
   }
 }
@@ -123,7 +123,7 @@ impl SwiftType for TSSignature<'_> {
           INDENT_SPACE, func_name, params, return_type
         )
       }
-      _ => "unknown-signature".to_owned(),
+      _ => "// unknown-signature".to_owned(),
     }
   }
 }
@@ -132,7 +132,7 @@ impl SwiftType for Declaration<'_> {
   fn to_swift_type(&self) -> String {
     match self {
       Declaration::TSInterfaceDeclaration(interface_decl) => interface_decl.to_swift_type(),
-      _ => "unknown-declartion".to_string(),
+      _ => "// unknown-declartion".to_string(),
     }
   }
 }
@@ -158,7 +158,7 @@ impl SwiftType for ExportNamedDeclaration<'_> {
       .declaration
       .as_ref()
       .map(|d| d.to_swift_type())
-      .unwrap_or_else(|| "unknown-export-named-declaration".to_string())
+      .unwrap_or_else(|| "// unknown-export-named-declaration".to_string())
   }
 }
 
