@@ -1,6 +1,7 @@
 use oxc_ast::ast::{
   BindingPatternKind, Declaration, ExportNamedDeclaration, PropertyKey, Statement,
-  TSInterfaceDeclaration, TSSignature, TSType, TSTypeReference,
+  TSEnumDeclaration, TSEnumMember, TSEnumMemberName, TSInterfaceDeclaration, TSSignature, TSType,
+  TSTypeReference,
 };
 
 use crate::languages::swift::{
@@ -161,12 +162,36 @@ impl SwiftType for ExportNamedDeclaration<'_> {
   }
 }
 
+impl SwiftType for TSEnumMember<'_> {
+  fn to_swift_type(&self) -> String {
+    match &self.id {
+      TSEnumMemberName::Identifier(enum_id) => enum_id.to_string(),
+      TSEnumMemberName::String(enum_string) => enum_string.to_string(),
+    }
+  }
+}
+
+impl SwiftType for TSEnumDeclaration<'_> {
+  fn to_swift_type(&self) -> String {
+    let enum_name = self.id.to_string();
+    let enum_cases: String = self
+      .members
+      .iter()
+      .map(|x| format!("{}case {}", INDENT_SPACE, x.to_swift_type()))
+      .collect::<Vec<_>>()
+      .join("\n");
+
+    format!("enum {} {{ \n{}\n}}", enum_name, enum_cases)
+  }
+}
+
 impl SwiftType for Statement<'_> {
   fn to_swift_type(&self) -> String {
     match self {
       Statement::ExportNamedDeclaration(export_decl) => export_decl.to_swift_type(),
       Statement::TSInterfaceDeclaration(interface_decl) => interface_decl.to_swift_type(),
-      _ => "uknown-statement".to_string(),
+      Statement::TSEnumDeclaration(enum_decl) => enum_decl.to_swift_type(),
+      _ => "// uknown-statement".to_string(),
     }
   }
 }
