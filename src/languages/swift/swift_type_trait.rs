@@ -156,7 +156,7 @@ impl SwiftType for TSInterfaceDeclaration<'_> {
       .join("\n");
 
     let protocol_name = self.id.name.to_string();
-    format!("protocol {} {{\n{}\n}}\n\n", protocol_name, body_data)
+    format!("\nprotocol {} {{\n{}\n}}\n", protocol_name, body_data)
   }
 }
 
@@ -189,7 +189,7 @@ impl SwiftType for TSEnumDeclaration<'_> {
       .collect::<Vec<_>>()
       .join("\n");
 
-    format!("enum {} {{ \n{}\n}}", enum_name, enum_cases)
+    format!("\nenum {} {{ \n{}\n}}\n", enum_name, enum_cases)
   }
 }
 
