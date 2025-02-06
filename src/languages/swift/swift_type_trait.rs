@@ -27,7 +27,7 @@ impl SwiftType for BindingPatternKind<'_> {
   fn to_swift_type(&self) -> String {
     match self {
       BindingPatternKind::BindingIdentifier(val) => val.name.to_string(),
-      _ => "uknown-BindingPatternKind".to_owned(),
+      _ => "unknown-BindingPatternKind".to_owned(),
     }
   }
 }
@@ -191,7 +191,7 @@ impl SwiftType for Statement<'_> {
       Statement::ExportNamedDeclaration(export_decl) => export_decl.to_swift_type(),
       Statement::TSInterfaceDeclaration(interface_decl) => interface_decl.to_swift_type(),
       Statement::TSEnumDeclaration(enum_decl) => enum_decl.to_swift_type(),
-      _ => "// uknown-statement".to_string(),
+      _ => "// unknown-statement".to_string(),
     }
   }
 }
