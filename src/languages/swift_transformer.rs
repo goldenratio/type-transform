@@ -1,6 +1,6 @@
 use oxc_ast::ast::{
   BindingPatternKind, Declaration, ExportNamedDeclaration, Program, PropertyKey, Statement,
-  TSInterfaceDeclaration, TSSignature, TSType,
+  TSInterfaceDeclaration, TSPropertySignature, TSSignature, TSType, TSTypeReference,
 };
 
 pub struct SwiftTransformer;
@@ -9,6 +9,14 @@ const INDENT_SPACE: &str = "  ";
 
 trait SwiftType {
   fn to_swift_type(&self) -> String;
+}
+
+trait SwiftFunctionReturnType {
+  fn to_swift_fn_return_type(&self) -> String;
+}
+
+trait IsAsyncType {
+  fn is_async_type(&self) -> bool;
 }
 
 impl SwiftType for PropertyKey<'_> {
@@ -29,19 +37,82 @@ impl SwiftType for BindingPatternKind<'_> {
   }
 }
 
+impl IsAsyncType for TSTypeReference<'_> {
+  fn is_async_type(&self) -> bool {
+    let type_name = self.type_name.to_string();
+    type_name == "Promise"
+  }
+}
+
+impl SwiftType for TSTypeReference<'_> {
+  fn to_swift_type(&self) -> String {
+    let type_name = self.type_name.to_string();
+    if type_name == "Promise" {
+      let async_return_type = self
+        .type_parameters
+        .as_ref()
+        .and_then(|x| x.params.first())
+        .map(|x| x.to_swift_type())
+        .unwrap_or_else(|| "Any".to_string());
+
+      async_return_type
+    } else {
+      type_name
+    }
+  }
+}
+
+impl IsAsyncType for TSType<'_> {
+  fn is_async_type(&self) -> bool {
+    match self {
+      TSType::TSTypeReference(val) => {
+        let type_name = val.type_name.to_string();
+        type_name == "Promise"
+      }
+      _ => false,
+    }
+  }
+}
 impl SwiftType for TSType<'_> {
   fn to_swift_type(&self) -> String {
     match self {
       TSType::TSStringKeyword(_) => "String".to_string(),
       TSType::TSNumberKeyword(_) => "Double".to_string(),
       TSType::TSBooleanKeyword(_) => "Bool".to_string(),
-      TSType::TSArrayType(arr_type) => {
-        format!("[{}]", arr_type.element_type.to_swift_type())
-      }
-      TSType::TSTypeReference(val) => val.type_name.to_string(),
+      TSType::TSTypeReference(val) => val.to_swift_type(),
       TSType::TSVoidKeyword(_) => "Void".to_string(),
       _ => "Any".to_string(),
     }
+  }
+}
+
+impl SwiftFunctionReturnType for TSType<'_> {
+  fn to_swift_fn_return_type(&self) -> String {
+    match self {
+      TSType::TSStringKeyword(_) => " -> String".to_string(),
+      TSType::TSNumberKeyword(_) => " -> Double".to_string(),
+      TSType::TSBooleanKeyword(_) => " -> Bool".to_string(),
+      TSType::TSTypeReference(val) => {
+        let type_name = val.to_swift_type();
+        if val.is_async_type() {
+          format!(" async throws -> {}", type_name)
+        } else {
+          format!(" -> {}", type_name)
+        }
+      }
+      TSType::TSVoidKeyword(_) => " -> Void".to_string(),
+      _ => " -> Any".to_string(),
+    }
+  }
+}
+
+impl IsAsyncType for TSPropertySignature<'_> {
+  fn is_async_type(&self) -> bool {
+    self
+      .type_annotation
+      .as_ref()
+      .map(|annotation| annotation.type_annotation.is_async_type())
+      .unwrap_or_default()
   }
 }
 
@@ -49,21 +120,27 @@ impl SwiftType for TSSignature<'_> {
   fn to_swift_type(&self) -> String {
     match self {
       TSSignature::TSPropertySignature(prop_sig) => {
-        let key = prop_sig.key.to_swift_type();
         let var = "var";
+        let prop_name = prop_sig.key.to_swift_type();
+
         let type_annotation = prop_sig
           .type_annotation
           .as_ref()
           .map(|annotation| annotation.type_annotation.to_swift_type())
-          .unwrap_or_else(|| "Any".to_string());
+          .unwrap_or_default();
 
         let optional = if prop_sig.optional { "?" } else { "" };
         let get_set_value = if prop_sig.readonly { "get" } else { "get set" };
+        let async_values = if prop_sig.is_async_type() {
+          "async throw"
+        } else {
+          ""
+        };
 
-        format!(
-          "{}{} {}: {}{} {{ {} }}",
-          INDENT_SPACE, var, key, type_annotation, optional, get_set_value
-        )
+        let accessor_parts = [optional, "{", get_set_value, async_values, "}"].join(" ");
+        let swift_prop_sig = format!("{}{}", type_annotation, accessor_parts);
+
+        format!("{}{} {}: {}", INDENT_SPACE, var, prop_name, swift_prop_sig)
       }
       TSSignature::TSMethodSignature(val) => {
         let params = val
@@ -90,15 +167,13 @@ impl SwiftType for TSSignature<'_> {
         let return_type = val
           .return_type
           .as_ref()
-          .map(|r| format!(" -> {}", r.type_annotation.to_swift_type()))
+          .map(|r| r.type_annotation.to_swift_fn_return_type())
           .unwrap_or_else(|| "".to_string());
 
+        let func_name = val.key.to_swift_type();
         format!(
           "{}func {}({}){}",
-          INDENT_SPACE,
-          val.key.to_swift_type(),
-          params,
-          return_type
+          INDENT_SPACE, func_name, params, return_type
         )
       }
       _ => "unknown-signature".to_owned(),
@@ -125,7 +200,7 @@ impl SwiftType for TSInterfaceDeclaration<'_> {
       .collect::<Vec<_>>()
       .join("\n");
 
-    let protocol_name: String = self.id.name.to_string();
+    let protocol_name = self.id.name.to_string();
     format!("protocol {} {{\n{}\n}}\n\n", protocol_name, body_data)
   }
 }
