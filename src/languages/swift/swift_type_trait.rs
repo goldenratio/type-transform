@@ -76,7 +76,6 @@ impl SwiftType for TSSignature<'_> {
   fn to_swift_type(&self) -> String {
     match self {
       TSSignature::TSPropertySignature(prop_sig) => {
-        let var = "var";
         let prop_name = prop_sig.key.to_swift_type();
 
         let type_annotation = prop_sig
@@ -96,7 +95,7 @@ impl SwiftType for TSSignature<'_> {
         let accessor_parts = format!("{} {{ {}{} }}", optional, get_set_value, async_values);
         let swift_prop_sig = format!("{}{}", type_annotation, accessor_parts);
 
-        format!("{}{} {}: {}", INDENT_SPACE, var, prop_name, swift_prop_sig)
+        format!("{}var {}: {}", INDENT_SPACE, prop_name, swift_prop_sig)
       }
       TSSignature::TSMethodSignature(val) => {
         let params = val
