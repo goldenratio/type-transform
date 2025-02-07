@@ -68,7 +68,7 @@ impl SwiftType for TSTypeReference<'_> {
           .map(|x| x.to_swift_type())
           .unwrap_or_else(|| "Any".into());
 
-        format!("[{}:{}]", key_str, val_str)
+        format!("[{}: {}]", key_str, val_str)
       }
 
       _ => type_name,
@@ -82,8 +82,9 @@ impl SwiftType for TSType<'_> {
       TSType::TSStringKeyword(_) => "String".to_string(),
       TSType::TSNumberKeyword(_) => "Double".to_string(),
       TSType::TSBooleanKeyword(_) => "Bool".to_string(),
-      TSType::TSTypeReference(val) => val.to_swift_type(),
       TSType::TSVoidKeyword(_) => "Void".to_string(),
+      TSType::TSObjectKeyword(_) => "[String: Any]".to_string(),
+      TSType::TSTypeReference(val) => val.to_swift_type(),
       _ => "Any".to_string(),
     }
   }
