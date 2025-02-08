@@ -1,7 +1,7 @@
 use oxc_ast::ast::{
-  BindingPatternKind, Declaration, ExportNamedDeclaration, PropertyKey, Statement,
-  TSEnumDeclaration, TSEnumMember, TSEnumMemberName, TSInterfaceDeclaration, TSSignature, TSType,
-  TSTypeReference,
+  BindingPatternKind, Declaration, ExportNamedDeclaration, FormalParameters, PropertyKey,
+  Statement, TSEnumDeclaration, TSEnumMember, TSEnumMemberName, TSInterfaceDeclaration,
+  TSSignature, TSType, TSTypeReference,
 };
 
 use crate::languages::swift::{
@@ -90,52 +90,83 @@ impl SwiftType for TSType<'_> {
   }
 }
 
+impl SwiftType for FormalParameters<'_> {
+  fn to_swift_type(&self) -> String {
+    self
+      .items
+      .iter()
+      .map(|param| {
+        let type_annotation = param
+          .pattern
+          .type_annotation
+          .as_ref()
+          .map(|t| t.type_annotation.to_swift_type())
+          .unwrap_or_else(|| "Any".to_string());
+
+        format!(
+          "{}: {}",
+          param.pattern.kind.to_swift_type(),
+          type_annotation
+        )
+      })
+      .collect::<Vec<_>>()
+      .join(", ")
+  }
+}
+
 impl SwiftType for TSSignature<'_> {
   fn to_swift_type(&self) -> String {
     match self {
       TSSignature::TSPropertySignature(prop_sig) => {
         let prop_name = prop_sig.key.to_swift_type();
 
-        let type_annotation = prop_sig
-          .type_annotation
-          .as_ref()
-          .map(|annotation| annotation.type_annotation.to_swift_type())
-          .unwrap_or_default();
-
-        let optional = if prop_sig.optional { "?" } else { "" };
-        let get_set_value = if prop_sig.readonly { "get" } else { "get set" };
-        let async_values = if prop_sig.is_async_type() {
-          " async throw"
-        } else {
-          ""
+        let is_arrow_function_property = match prop_sig.type_annotation.as_ref() {
+          Some(val) => matches!(val.type_annotation, TSType::TSFunctionType(_)),
+          None => false,
         };
 
-        let accessor_parts = format!("{} {{ {}{} }}", optional, get_set_value, async_values);
-        let swift_prop_sig = format!("{}{}", type_annotation, accessor_parts);
+        if is_arrow_function_property {
+          let fn_return_type = prop_sig
+            .type_annotation
+            .as_ref()
+            .map(|r| r.type_annotation.to_swift_fn_return_type())
+            .unwrap_or_else(|| "".to_string());
 
-        format!("{}var {}: {}", INDENT_SPACE, prop_name, swift_prop_sig)
+          let params = match prop_sig.type_annotation.as_ref() {
+            Some(val) => match &val.type_annotation {
+              TSType::TSFunctionType(fn_type) => fn_type.params.to_swift_type(),
+              _ => "".to_string(),
+            },
+            None => "".to_string(),
+          };
+
+          format!(
+            "{}func {}({}){}",
+            INDENT_SPACE, prop_name, params, fn_return_type
+          )
+        } else {
+          let type_annotation = prop_sig
+            .type_annotation
+            .as_ref()
+            .map(|annotation| annotation.type_annotation.to_swift_type())
+            .unwrap_or_default();
+
+          let optional = if prop_sig.optional { "?" } else { "" };
+          let get_set_value = if prop_sig.readonly { "get" } else { "get set" };
+          let async_values = if prop_sig.is_async_type() {
+            " async throw"
+          } else {
+            ""
+          };
+
+          let accessor_parts = format!("{} {{ {}{} }}", optional, get_set_value, async_values);
+          let swift_prop_sig = format!("{}{}", type_annotation, accessor_parts);
+
+          format!("{}var {}: {}", INDENT_SPACE, prop_name, swift_prop_sig)
+        }
       }
       TSSignature::TSMethodSignature(val) => {
-        let params = val
-          .params
-          .items
-          .iter()
-          .map(|param| {
-            let type_annotation = param
-              .pattern
-              .type_annotation
-              .as_ref()
-              .map(|t| t.type_annotation.to_swift_type())
-              .unwrap_or_else(|| "Any".to_string());
-
-            format!(
-              "{}: {}",
-              param.pattern.kind.to_swift_type(),
-              type_annotation
-            )
-          })
-          .collect::<Vec<_>>()
-          .join(", ");
+        let params = val.params.to_swift_type();
 
         let return_type = val
           .return_type
