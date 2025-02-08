@@ -9,7 +9,7 @@ use languages::language_factory::LanguageFactory;
 use oxc_allocator::Allocator;
 use oxc_parser::{ParseOptions, Parser as OxcParser};
 use oxc_span::SourceType;
-use utils::{content_utils::get_content_banner_header, file_utils::get_language_from_file_name};
+use utils::file_utils::{get_language_from_file_name, parse_banner, parse_footer};
 
 /// Convert TypeScript types to swift,kotlin, etc..
 #[derive(Parser, Debug)]
@@ -21,6 +21,16 @@ struct Args {
   /// The output file. Determines --lang and --top-level.
   #[arg(short, long)]
   out: String,
+
+  /// A banner to be added to the generated file, this can be a package path for "kotlin",
+  /// a custom auto code generated message or a comment block such as a license for the code.
+  #[arg(short, long)]
+  banner: Option<String>,
+
+  /// A footer to be added to the generated file, this can be something like a
+  /// comment block for a license or just a fun easter egg.
+  #[arg(short, long)]
+  footer: Option<String>,
 }
 
 fn main() {
@@ -57,8 +67,11 @@ fn main() {
   if ret.errors.is_empty() {
     let transformed_code = LanguageFactory::transform(destination_language, &program);
     let out_path = Path::new(&args.out);
-    let banner_header = get_content_banner_header();
-    let updated_content = format!("{}\n{}", banner_header, transformed_code);
+    let banner = parse_banner(&args.banner);
+    let footer = parse_footer(&args.footer);
+
+    let updated_content = format!("{}{}{}", banner, transformed_code, footer);
+
     let res = fs::write(out_path, updated_content);
     match res {
       Ok(_) => println!("success"),
