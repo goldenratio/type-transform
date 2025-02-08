@@ -25,7 +25,7 @@ impl TryFrom<String> for LanguageType {
 pub struct LanguageFactory;
 
 impl LanguageFactory {
-  pub fn transform(target_language: LanguageType, ast_program: &Program) -> String {
+  pub fn transform(target_language: &LanguageType, ast_program: &Program) -> String {
     match target_language {
       LanguageType::Swift => SwiftTransformer::transform(ast_program),
       LanguageType::Kotlin => KotlinTransformer::transform(ast_program),

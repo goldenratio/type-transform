@@ -65,7 +65,7 @@ fn main() {
   println!("{}", serde_json::to_string_pretty(&program).unwrap());
 
   if ret.errors.is_empty() {
-    let transformed_code = LanguageFactory::transform(destination_language, &program);
+    let transformed_code = LanguageFactory::transform(&destination_language, &program);
     let out_path = Path::new(&args.out);
     let banner = parse_banner(&args.banner);
     let footer = parse_footer(&args.footer);
