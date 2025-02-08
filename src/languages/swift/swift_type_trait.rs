@@ -176,6 +176,7 @@ impl SwiftType for Declaration<'_> {
   fn to_swift_type(&self) -> String {
     match self {
       Declaration::TSInterfaceDeclaration(interface_decl) => interface_decl.to_swift_type(),
+      Declaration::TSEnumDeclaration(enum_decl) => enum_decl.to_swift_type(),
       _ => "// unknown-declartion".to_string(),
     }
   }
@@ -201,7 +202,14 @@ impl SwiftType for ExportNamedDeclaration<'_> {
     self
       .declaration
       .as_ref()
-      .map(|d| format!("public {}", d.to_swift_type()))
+      .map(|d| d.to_swift_type())
+      .map(|d| {
+        if d.starts_with("//") {
+          d
+        } else {
+          format!("public {}", d)
+        }
+      })
       .unwrap_or_else(|| "// unknown-export-named-declaration".to_string())
   }
 }
@@ -225,7 +233,10 @@ impl SwiftType for TSEnumDeclaration<'_> {
       .collect::<Vec<_>>()
       .join("\n");
 
-    format!("\nenum {} {{ \n{}\n}}\n", enum_name, enum_cases)
+    format!(
+      "enum {}: Int, CaseIterable {{ \n{}\n}}\n",
+      enum_name, enum_cases
+    )
   }
 }
 
