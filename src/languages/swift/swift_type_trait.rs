@@ -120,50 +120,37 @@ impl SwiftType for TSSignature<'_> {
       TSSignature::TSPropertySignature(prop_sig) => {
         let prop_name = prop_sig.key.to_swift_type();
 
-        let is_arrow_function_property = match prop_sig.type_annotation.as_ref() {
-          Some(val) => matches!(val.type_annotation, TSType::TSFunctionType(_)),
-          None => false,
+        // If property is a arrow function
+        if let Some(annotation) = prop_sig.type_annotation.as_ref() {
+          if let TSType::TSFunctionType(fn_type) = &annotation.type_annotation {
+            let fn_return_type = annotation.type_annotation.to_swift_fn_return_type();
+            let fn_params = fn_type.params.to_swift_type();
+
+            return format!(
+              "{}func {}({}){}",
+              INDENT_SPACE, prop_name, fn_params, fn_return_type
+            );
+          }
+        }
+
+        let type_annotation = prop_sig
+          .type_annotation
+          .as_ref()
+          .map(|annotation| annotation.type_annotation.to_swift_type())
+          .unwrap_or_default();
+
+        let optional = if prop_sig.optional { "?" } else { "" };
+        let get_set_value = if prop_sig.readonly { "get" } else { "get set" };
+        let async_values = if prop_sig.is_async_type() {
+          " async throw"
+        } else {
+          ""
         };
 
-        if is_arrow_function_property {
-          let fn_return_type = prop_sig
-            .type_annotation
-            .as_ref()
-            .map(|r| r.type_annotation.to_swift_fn_return_type())
-            .unwrap_or_else(|| "".to_string());
+        let accessor_parts = format!("{} {{ {}{} }}", optional, get_set_value, async_values);
+        let swift_prop_sig = format!("{}{}", type_annotation, accessor_parts);
 
-          let params = match prop_sig.type_annotation.as_ref() {
-            Some(val) => match &val.type_annotation {
-              TSType::TSFunctionType(fn_type) => fn_type.params.to_swift_type(),
-              _ => "".to_string(),
-            },
-            None => "".to_string(),
-          };
-
-          format!(
-            "{}func {}({}){}",
-            INDENT_SPACE, prop_name, params, fn_return_type
-          )
-        } else {
-          let type_annotation = prop_sig
-            .type_annotation
-            .as_ref()
-            .map(|annotation| annotation.type_annotation.to_swift_type())
-            .unwrap_or_default();
-
-          let optional = if prop_sig.optional { "?" } else { "" };
-          let get_set_value = if prop_sig.readonly { "get" } else { "get set" };
-          let async_values = if prop_sig.is_async_type() {
-            " async throw"
-          } else {
-            ""
-          };
-
-          let accessor_parts = format!("{} {{ {}{} }}", optional, get_set_value, async_values);
-          let swift_prop_sig = format!("{}{}", type_annotation, accessor_parts);
-
-          format!("{}var {}: {}", INDENT_SPACE, prop_name, swift_prop_sig)
-        }
+        format!("{}var {}: {}", INDENT_SPACE, prop_name, swift_prop_sig)
       }
       TSSignature::TSMethodSignature(val) => {
         let params = val.params.to_swift_type();
