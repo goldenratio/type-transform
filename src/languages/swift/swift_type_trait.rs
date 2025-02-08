@@ -119,6 +119,7 @@ impl SwiftType for TSSignature<'_> {
     match self {
       TSSignature::TSPropertySignature(prop_sig) => {
         let prop_name = prop_sig.key.to_swift_type();
+        let optional = if prop_sig.optional { "?" } else { "" };
 
         // If property is a arrow function
         if let Some(annotation) = prop_sig.type_annotation.as_ref() {
@@ -127,8 +128,8 @@ impl SwiftType for TSSignature<'_> {
             let fn_params = fn_type.params.to_swift_type();
 
             return format!(
-              "{}func {}({}){}",
-              INDENT_SPACE, prop_name, fn_params, fn_return_type
+              "{}func {}({}){}{}",
+              INDENT_SPACE, prop_name, fn_params, fn_return_type, optional
             );
           }
         }
@@ -139,7 +140,6 @@ impl SwiftType for TSSignature<'_> {
           .map(|annotation| annotation.type_annotation.to_swift_type())
           .unwrap_or_default();
 
-        let optional = if prop_sig.optional { "?" } else { "" };
         let get_set_value = if prop_sig.readonly { "get" } else { "get set" };
         let async_values = if prop_sig.is_async_type() {
           " async throw"
