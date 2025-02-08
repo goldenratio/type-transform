@@ -140,12 +140,14 @@ impl SwiftType for TSSignature<'_> {
           .map(|annotation| annotation.type_annotation.to_swift_type())
           .unwrap_or_default();
 
-        let get_set_value = if prop_sig.readonly { "get" } else { "get set" };
-        let async_values = if prop_sig.is_async_type() {
-          " async throw"
+        let is_async = prop_sig.is_async_type();
+
+        let get_set_value = if prop_sig.readonly || is_async {
+          "get"
         } else {
-          ""
+          "get set"
         };
+        let async_values = if is_async { " async throws" } else { "" };
 
         let accessor_parts = format!("{} {{ {}{} }}", optional, get_set_value, async_values);
         let swift_prop_sig = format!("{}{}", type_annotation, accessor_parts);
