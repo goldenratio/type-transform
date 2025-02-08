@@ -192,7 +192,7 @@ impl SwiftType for TSInterfaceDeclaration<'_> {
       .join("\n");
 
     let protocol_name = self.id.name.to_string();
-    format!("\nprotocol {} {{\n{}\n}}\n", protocol_name, body_data)
+    format!("protocol {} {{\n{}\n}}\n\n", protocol_name, body_data)
   }
 }
 
@@ -201,7 +201,7 @@ impl SwiftType for ExportNamedDeclaration<'_> {
     self
       .declaration
       .as_ref()
-      .map(|d| d.to_swift_type())
+      .map(|d| format!("public {}", d.to_swift_type()))
       .unwrap_or_else(|| "// unknown-export-named-declaration".to_string())
   }
 }
