@@ -187,16 +187,16 @@ impl SwiftType for Declaration<'_> {
 
 impl SwiftType for TSInterfaceDeclaration<'_> {
   fn to_swift_type(&self) -> String {
-    let is_protocol = self.body.body.iter().any(|x| {
-      if let TSSignature::TSPropertySignature(prop_sig) = x {
+    let is_protocol = self.body.body.iter().any(|x| match x {
+      TSSignature::TSMethodSignature(_) => true,
+      TSSignature::TSPropertySignature(prop_sig) => {
         if let Some(type_annotation) = &prop_sig.type_annotation {
           matches!(type_annotation.type_annotation, TSType::TSFunctionType(_))
         } else {
           false
         }
-      } else {
-        false
       }
+      _ => false,
     });
 
     let protocol_name = self.id.name.to_string();
