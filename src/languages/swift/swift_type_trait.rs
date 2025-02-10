@@ -6,6 +6,7 @@ use oxc_ast::ast::{
 
 use crate::languages::swift::{
   swift_fn_return_type_trait::SwiftFunctionReturnType, swift_is_async_trait::IsAsyncType,
+  swift_struct_type_trait::SwiftStructType,
 };
 
 const INDENT_SPACE: &str = "  ";
@@ -186,16 +187,44 @@ impl SwiftType for Declaration<'_> {
 
 impl SwiftType for TSInterfaceDeclaration<'_> {
   fn to_swift_type(&self) -> String {
-    let body_data = self
-      .body
-      .body
-      .iter()
-      .map(|signature| signature.to_swift_type())
-      .collect::<Vec<_>>()
-      .join("\n");
+    let is_protocol = self.body.body.iter().any(|x| {
+      if let TSSignature::TSPropertySignature(prop_sig) = x {
+        if let Some(type_annotation) = &prop_sig.type_annotation {
+          matches!(type_annotation.type_annotation, TSType::TSFunctionType(_))
+        } else {
+          false
+        }
+      } else {
+        false
+      }
+    });
 
     let protocol_name = self.id.name.to_string();
-    format!("protocol {} {{\n{}\n}}\n\n", protocol_name, body_data)
+
+    if is_protocol {
+      let body_data = self
+        .body
+        .body
+        .iter()
+        .map(|signature| signature.to_swift_type())
+        .collect::<Vec<_>>()
+        .join("\n");
+
+      format!("protocol {} {{\n{}\n}}\n\n", protocol_name, body_data)
+    } else {
+      let body_data = self
+        .body
+        .body
+        .iter()
+        .map(|signature| signature.to_swift_struct_type())
+        .collect::<Vec<_>>()
+        .join("\n");
+
+      format!(
+        "struct {}: Codable, Equatable, Hashable {{\n{}\n}}\n\n",
+        protocol_name, body_data
+      )
+    }
   }
 }
 
