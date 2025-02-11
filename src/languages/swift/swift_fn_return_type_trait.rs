@@ -1,6 +1,8 @@
 use oxc_ast::ast::TSType;
 
-use super::{swift_is_async_trait::IsAsyncType, swift_type_trait::SwiftType};
+use crate::languages::shared::is_async_trait::IsAsyncType;
+
+use super::swift_type_trait::SwiftType;
 
 pub trait SwiftFunctionReturnType {
   fn to_swift_fn_return_type(&self) -> String;

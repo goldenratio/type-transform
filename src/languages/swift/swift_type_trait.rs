@@ -4,9 +4,11 @@ use oxc_ast::ast::{
   TSSignature, TSType, TSTypeReference,
 };
 
-use crate::languages::swift::{
-  swift_fn_return_type_trait::SwiftFunctionReturnType, swift_is_async_trait::IsAsyncType,
-  swift_struct_type_trait::SwiftStructType,
+use crate::languages::{
+  shared::is_async_trait::IsAsyncType,
+  swift::{
+    swift_fn_return_type_trait::SwiftFunctionReturnType, swift_struct_type_trait::SwiftStructType,
+  },
 };
 
 const INDENT_SPACE: &str = "  ";
