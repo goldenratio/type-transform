@@ -3,6 +3,13 @@ name = "type-transform"
 version = "0.1.0"
 edition = "2021"
 
+[profile.dev]
+opt-level = 0
+
+[profile.release]
+opt-level = 3
+strip = true
+
 [dependencies]
 clap = { version = "4.5.27", features = ["derive"] }
 serde = { version = "1.0.197", features = ["derive"] }
