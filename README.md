@@ -13,7 +13,7 @@ Arguments:
   <SRC>  Input file name
 
 Options:
-  -o, --out <OUT>  The output file. Determines --lang and --top-level
+  -o, --out <OUT>  The output file. Target language is inferred from file extension
   -h, --help       Print help
   -V, --version    Print version
 

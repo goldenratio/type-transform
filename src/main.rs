@@ -18,7 +18,7 @@ struct Args {
   /// Input file name
   src: String,
 
-  /// The output file. Determines --lang and --top-level.
+  /// The output file. Target language is inferred from file extension
   #[arg(short, long)]
   out: String,
 
