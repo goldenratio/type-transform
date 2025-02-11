@@ -22,6 +22,7 @@ impl SwiftStructType for TSSignature<'_> {
         let optional = if prop_sig.optional { "?" } else { "" };
         let swift_prop_sig = format!("{}{}", type_annotation, optional);
 
+        // by default all struct properties are `public`
         format!(
           "{}public let {}: {}",
           INDENT_SPACE, prop_name, swift_prop_sig

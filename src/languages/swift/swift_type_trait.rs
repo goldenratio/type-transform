@@ -72,6 +72,16 @@ impl SwiftType for TSTypeReference<'_> {
         format!("[{}: {}]", key_str, val_str)
       }
 
+      "Set" => {
+        let val_str = self
+          .type_parameters
+          .as_ref()
+          .and_then(|x| x.params.first())
+          .map(|x| x.to_swift_type())
+          .unwrap_or_else(|| "Any".into());
+        format!("{}<{}>", type_name, val_str)
+      }
+
       _ => type_name,
     }
   }
