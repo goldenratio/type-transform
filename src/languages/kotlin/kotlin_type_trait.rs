@@ -30,7 +30,7 @@ impl KotlinType for TSTypeReference<'_> {
         .unwrap_or_else(|| "Any".into()),
 
       "Array" => format!(
-        "[{}]",
+        "List<{}>",
         self
           .type_parameters
           .as_ref()
@@ -54,7 +54,7 @@ impl KotlinType for TSTypeReference<'_> {
           .map(|x| x.to_kotlin_type())
           .unwrap_or_else(|| "Any".into());
 
-        format!("[{}: {}]", key_str, val_str)
+        format!("Map<{}, {}>", key_str, val_str)
       }
 
       "Set" => {
