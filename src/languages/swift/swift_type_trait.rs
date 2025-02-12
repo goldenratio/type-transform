@@ -1,7 +1,7 @@
 use oxc_ast::ast::{
   BindingPatternKind, Declaration, ExportNamedDeclaration, FormalParameters, PropertyKey,
-  Statement, TSEnumDeclaration, TSEnumMember, TSEnumMemberName, TSInterfaceDeclaration,
-  TSSignature, TSType, TSTypeReference,
+  Statement, TSEnumDeclaration, TSEnumMember, TSEnumMemberName, TSFunctionType,
+  TSInterfaceDeclaration, TSSignature, TSType, TSTypeReference,
 };
 
 use crate::languages::{
@@ -89,6 +89,15 @@ impl SwiftType for TSTypeReference<'_> {
   }
 }
 
+impl SwiftType for TSFunctionType<'_> {
+  fn to_swift_type(&self) -> String {
+    let type_name = self.return_type.type_annotation.to_swift_type();
+    let fn_params = self.params.to_swift_type();
+
+    format!("({}) -> {}", fn_params, type_name)
+  }
+}
+
 impl SwiftType for TSType<'_> {
   fn to_swift_type(&self) -> String {
     match self {
@@ -98,6 +107,7 @@ impl SwiftType for TSType<'_> {
       TSType::TSVoidKeyword(_) => "Void".to_string(),
       TSType::TSObjectKeyword(_) => "[String: Any]".to_string(),
       TSType::TSTypeReference(val) => val.to_swift_type(),
+      TSType::TSFunctionType(val) => val.to_swift_type(),
       _ => "Any".to_string(),
     }
   }
@@ -137,7 +147,11 @@ impl SwiftType for TSSignature<'_> {
         // If property is a arrow function
         if let Some(annotation) = prop_sig.type_annotation.as_ref() {
           if let TSType::TSFunctionType(fn_type) = &annotation.type_annotation {
-            let fn_return_type = annotation.type_annotation.to_swift_fn_return_type();
+            let fn_return_type = fn_type
+              .return_type
+              .type_annotation
+              .to_swift_fn_return_type();
+
             let fn_params = fn_type.params.to_swift_type();
 
             return format!(
@@ -176,16 +190,16 @@ impl SwiftType for TSSignature<'_> {
           swift_prop_sig
         )
       }
-      TSSignature::TSMethodSignature(val) => {
-        let params = val.params.to_swift_type();
+      TSSignature::TSMethodSignature(method_sig) => {
+        let params = method_sig.params.to_swift_type();
 
-        let return_type = val
+        let return_type = method_sig
           .return_type
           .as_ref()
           .map(|r| r.type_annotation.to_swift_fn_return_type())
           .unwrap_or_else(|| "".to_string());
 
-        let func_name = val.key.to_swift_type();
+        let func_name = method_sig.key.to_swift_type();
         format!(
           "{}func {}({}){}",
           swift_style::INDENT_SPACE,

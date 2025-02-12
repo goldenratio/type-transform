@@ -24,8 +24,7 @@ impl SwiftFunctionReturnType for TSType<'_> {
         }
       }
       TSType::TSFunctionType(val) => {
-        let type_name = val.return_type.type_annotation.to_swift_type();
-        format!(" async throws -> {}", type_name)
+        format!(" -> {}", val.to_swift_type())
       }
       _ => " -> Any".to_string(),
     }
