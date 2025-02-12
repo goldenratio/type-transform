@@ -1,5 +1,6 @@
 use oxc_ast::ast::{
-  PropertyKey, Statement, TSInterfaceDeclaration, TSSignature, TSType, TSTypeReference,
+  BindingPatternKind, FormalParameters, PropertyKey, Statement, TSFunctionType,
+  TSInterfaceDeclaration, TSSignature, TSType, TSTypeReference,
 };
 
 use crate::languages::kotlin::kotlin_style;
@@ -18,6 +19,15 @@ impl KotlinType for PropertyKey<'_> {
   }
 }
 
+impl KotlinType for BindingPatternKind<'_> {
+  fn to_kotlin_type(&self) -> String {
+    match self {
+      BindingPatternKind::BindingIdentifier(val) => val.name.to_string(),
+      _ => "unknown-BindingPatternKind".to_owned(),
+    }
+  }
+}
+
 impl KotlinType for TSTypeReference<'_> {
   fn to_kotlin_type(&self) -> String {
     let type_name = self.type_name.to_string();
@@ -29,7 +39,7 @@ impl KotlinType for TSTypeReference<'_> {
         .map(|x| x.to_kotlin_type())
         .unwrap_or_else(|| "Any".into()),
 
-      "Array" => format!(
+      "Array" | "ReadonlyArray" => format!(
         "List<{}>",
         self
           .type_parameters
@@ -39,7 +49,7 @@ impl KotlinType for TSTypeReference<'_> {
           .unwrap_or_else(|| "Any".into())
       ),
 
-      "Record" | "Map" => {
+      "Record" | "Map" | "ReadonlyMap" => {
         let key_str = self
           .type_parameters
           .as_ref()
@@ -72,6 +82,16 @@ impl KotlinType for TSTypeReference<'_> {
   }
 }
 
+impl KotlinType for TSFunctionType<'_> {
+  /// this is invoked from second level functions
+  fn to_kotlin_type(&self) -> String {
+    let type_name = self.return_type.type_annotation.to_kotlin_type();
+    let fn_params = self.params.to_kotlin_type();
+
+    format!("({}) -> {}", fn_params, type_name)
+  }
+}
+
 impl KotlinType for TSType<'_> {
   fn to_kotlin_type(&self) -> String {
     match self {
@@ -81,8 +101,38 @@ impl KotlinType for TSType<'_> {
       TSType::TSVoidKeyword(_) => "Unit".to_string(),
       TSType::TSObjectKeyword(_) => "Map<String, Any>".to_string(),
       TSType::TSTypeReference(val) => val.to_kotlin_type(),
+      TSType::TSFunctionType(fn_type) => fn_type.to_kotlin_type(),
+      TSType::TSArrayType(array_type) => {
+        let el_type = array_type.element_type.to_kotlin_type();
+        format!("List<{}>", el_type)
+      }
+      TSType::TSTypeOperatorType(op_type) => op_type.type_annotation.to_kotlin_type(),
       _ => "Any".to_string(),
     }
+  }
+}
+
+impl KotlinType for FormalParameters<'_> {
+  fn to_kotlin_type(&self) -> String {
+    self
+      .items
+      .iter()
+      .map(|param| {
+        let type_annotation = param
+          .pattern
+          .type_annotation
+          .as_ref()
+          .map(|t| t.type_annotation.to_kotlin_type())
+          .unwrap_or_else(|| "Any".to_string());
+
+        format!(
+          "{}: {}",
+          param.pattern.kind.to_kotlin_type(),
+          type_annotation
+        )
+      })
+      .collect::<Vec<_>>()
+      .join(", ")
   }
 }
 
@@ -92,6 +142,24 @@ impl KotlinType for TSSignature<'_> {
       TSSignature::TSPropertySignature(prop_sig) => {
         let prop_name = prop_sig.key.to_kotlin_type();
         let readonly = if prop_sig.readonly { "val" } else { "var" };
+
+        // If property is a arrow function
+        if let Some(annotation) = prop_sig.type_annotation.as_ref() {
+          if let TSType::TSFunctionType(fn_type) = &annotation.type_annotation {
+            let fn_return_type = fn_type.return_type.type_annotation.to_kotlin_type();
+            let fn_params = fn_type.params.to_kotlin_type();
+
+            return format!(
+              "{}{} {}: ({}) -> {}",
+              kotlin_style::INDENT_SPACE,
+              readonly,
+              prop_name,
+              fn_params,
+              fn_return_type
+            );
+          }
+        }
+
         let type_annotation = prop_sig
           .type_annotation
           .as_ref()
@@ -104,6 +172,24 @@ impl KotlinType for TSSignature<'_> {
           readonly,
           prop_name,
           type_annotation
+        )
+      }
+      TSSignature::TSMethodSignature(method_sig) => {
+        let params = method_sig.params.to_kotlin_type();
+
+        let return_type = method_sig
+          .return_type
+          .as_ref()
+          .map(|r| r.type_annotation.to_kotlin_type())
+          .unwrap_or_else(|| "".to_string());
+
+        let func_name = method_sig.key.to_kotlin_type();
+        format!(
+          "{}func {}({}): {}",
+          kotlin_style::INDENT_SPACE,
+          func_name,
+          params,
+          return_type
         )
       }
       _ => "// unknown-signature".to_string(),
