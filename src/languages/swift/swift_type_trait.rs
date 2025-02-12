@@ -46,7 +46,7 @@ impl SwiftType for TSTypeReference<'_> {
         .map(|x| x.to_swift_type())
         .unwrap_or_else(|| "Any".into()),
 
-      "Array" => format!(
+      "Array" | "ReadonlyArray" => format!(
         "[{}]",
         self
           .type_parameters
@@ -56,7 +56,7 @@ impl SwiftType for TSTypeReference<'_> {
           .unwrap_or_else(|| "Any".into())
       ),
 
-      "Record" | "Map" => {
+      "Record" | "Map" | "ReadonlyMap" => {
         let key_str = self
           .type_parameters
           .as_ref()
@@ -110,8 +110,13 @@ impl SwiftType for TSType<'_> {
       TSType::TSBooleanKeyword(_) => "Bool".to_string(),
       TSType::TSVoidKeyword(_) => "Void".to_string(),
       TSType::TSObjectKeyword(_) => "[String: Any]".to_string(),
-      TSType::TSTypeReference(val) => val.to_swift_type(),
-      TSType::TSFunctionType(val) => val.to_swift_type(),
+      TSType::TSTypeReference(ref_type) => ref_type.to_swift_type(),
+      TSType::TSFunctionType(fn_type) => fn_type.to_swift_type(),
+      TSType::TSArrayType(array_type) => {
+        let el_type = array_type.element_type.to_swift_type();
+        format!("[{}]", el_type)
+      }
+      TSType::TSTypeOperatorType(op_type) => op_type.type_annotation.to_swift_type(),
       _ => "Any".to_string(),
     }
   }
