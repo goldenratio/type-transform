@@ -2,7 +2,7 @@ use oxc_ast::ast::{
   PropertyKey, Statement, TSInterfaceDeclaration, TSSignature, TSType, TSTypeReference,
 };
 
-const INDENT_SPACE: &str = "  ";
+const INDENT_SPACE: &str = "    ";
 
 pub trait KotlinType {
   fn to_kotlin_type(&self) -> String;
