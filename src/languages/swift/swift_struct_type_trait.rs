@@ -1,8 +1,6 @@
 use oxc_ast::ast::TSSignature;
 
-use crate::languages::swift::swift_type_trait::SwiftType;
-
-const INDENT_SPACE: &str = "  ";
+use crate::languages::swift::{swift_style::INDENT_SPACE, swift_type_trait::SwiftType};
 
 pub trait SwiftStructType {
   fn to_swift_struct_type(&self) -> String;

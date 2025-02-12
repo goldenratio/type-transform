@@ -8,10 +8,9 @@ use crate::languages::{
   shared::is_async_trait::IsAsyncType,
   swift::{
     swift_fn_return_type_trait::SwiftFunctionReturnType, swift_struct_type_trait::SwiftStructType,
+    swift_style::INDENT_SPACE,
   },
 };
-
-const INDENT_SPACE: &str = "  ";
 
 pub trait SwiftType {
   fn to_swift_type(&self) -> String;
