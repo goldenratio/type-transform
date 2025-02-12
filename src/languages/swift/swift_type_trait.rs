@@ -258,10 +258,7 @@ impl SwiftType for TSInterfaceDeclaration<'_> {
         .collect::<Vec<_>>()
         .join("\n");
 
-      format!(
-        "struct {}: Codable, Equatable, Hashable {{\n{}\n}}\n\n",
-        protocol_name, body_data
-      )
+      format!("struct {} {{\n{}\n}}\n\n", protocol_name, body_data)
     }
   }
 }
