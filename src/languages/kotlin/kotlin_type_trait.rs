@@ -3,7 +3,7 @@ use oxc_ast::ast::{
   TSInterfaceDeclaration, TSSignature, TSType, TSTypeReference,
 };
 
-use crate::languages::kotlin::kotlin_style;
+use crate::languages::{kotlin::kotlin_style, shared::is_async_trait::IsAsyncType};
 
 pub trait KotlinType {
   fn to_kotlin_type(&self) -> String;
@@ -148,12 +148,18 @@ impl KotlinType for TSSignature<'_> {
           if let TSType::TSFunctionType(fn_type) = &annotation.type_annotation {
             let fn_return_type = fn_type.return_type.type_annotation.to_kotlin_type();
             let fn_params = fn_type.params.to_kotlin_type();
+            let async_val = if fn_type.return_type.type_annotation.is_async_type() {
+              "suspend "
+            } else {
+              ""
+            };
 
             return format!(
-              "{}{} {}: ({}) -> {}",
+              "{}{} {}: {}({}) -> {}",
               kotlin_style::INDENT_SPACE,
               readonly,
               prop_name,
+              async_val,
               fn_params,
               fn_return_type
             );
@@ -166,12 +172,19 @@ impl KotlinType for TSSignature<'_> {
           .map(|annotation| annotation.type_annotation.to_kotlin_type())
           .unwrap_or_default();
 
+        let prop_return_type = if prop_sig.is_async_type() {
+          // TODO: `import kotlinx.coroutines.Deferred` should included in banner
+          format!("Deferred<{}>", type_annotation)
+        } else {
+          type_annotation.to_string()
+        };
+
         format!(
           "{}{} {}: {}",
           kotlin_style::INDENT_SPACE,
           readonly,
           prop_name,
-          type_annotation
+          prop_return_type
         )
       }
       TSSignature::TSMethodSignature(method_sig) => {
@@ -184,9 +197,15 @@ impl KotlinType for TSSignature<'_> {
           .unwrap_or_else(|| "".to_string());
 
         let func_name = method_sig.key.to_kotlin_type();
+        let async_val = if method_sig.is_async_type() {
+          "suspend "
+        } else {
+          ""
+        };
         format!(
-          "{}func {}({}): {}",
+          "{}{}fun {}({}): {}",
           kotlin_style::INDENT_SPACE,
+          async_val,
           func_name,
           params,
           return_type

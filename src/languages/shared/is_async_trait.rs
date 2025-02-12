@@ -1,4 +1,4 @@
-use oxc_ast::ast::{TSPropertySignature, TSType, TSTypeReference};
+use oxc_ast::ast::{TSMethodSignature, TSPropertySignature, TSType, TSTypeReference};
 
 pub trait IsAsyncType {
   fn is_async_type(&self) -> bool;
@@ -26,6 +26,16 @@ impl IsAsyncType for TSPropertySignature<'_> {
       .type_annotation
       .as_ref()
       .map(|annotation| annotation.type_annotation.is_async_type())
+      .unwrap_or_default()
+  }
+}
+
+impl IsAsyncType for TSMethodSignature<'_> {
+  fn is_async_type(&self) -> bool {
+    self
+      .return_type
+      .as_ref()
+      .map(|r| r.type_annotation.is_async_type())
       .unwrap_or_default()
   }
 }
