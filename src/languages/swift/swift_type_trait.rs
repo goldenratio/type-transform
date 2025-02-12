@@ -90,11 +90,15 @@ impl SwiftType for TSTypeReference<'_> {
 }
 
 impl SwiftType for TSFunctionType<'_> {
+  /// this is invoked from second level functions
   fn to_swift_type(&self) -> String {
     let type_name = self.return_type.type_annotation.to_swift_type();
     let fn_params = self.params.to_swift_type();
 
-    format!("({}) -> {}", fn_params, type_name)
+    // Function types cannot have argument labels; use '_' before 'name'
+    let ignore_arg_labels = if !fn_params.is_empty() { "_ " } else { "" };
+
+    format!("({}{}) -> {}", ignore_arg_labels, fn_params, type_name)
   }
 }
 
