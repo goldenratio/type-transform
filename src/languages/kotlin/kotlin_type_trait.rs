@@ -2,7 +2,7 @@ use oxc_ast::ast::{
   PropertyKey, Statement, TSInterfaceDeclaration, TSSignature, TSType, TSTypeReference,
 };
 
-use crate::languages::kotlin::kotlin_style::INDENT_SPACE;
+use crate::languages::kotlin::kotlin_style;
 
 pub trait KotlinType {
   fn to_kotlin_type(&self) -> String;
@@ -100,7 +100,10 @@ impl KotlinType for TSSignature<'_> {
 
         format!(
           "{}{} {}: {}",
-          INDENT_SPACE, readonly, prop_name, type_annotation
+          kotlin_style::INDENT_SPACE,
+          readonly,
+          prop_name,
+          type_annotation
         )
       }
       _ => "// unknown-signature".to_string(),

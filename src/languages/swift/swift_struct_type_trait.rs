@@ -1,6 +1,6 @@
 use oxc_ast::ast::TSSignature;
 
-use crate::languages::swift::{swift_style::INDENT_SPACE, swift_type_trait::SwiftType};
+use crate::languages::swift::{swift_style, swift_type_trait::SwiftType};
 
 pub trait SwiftStructType {
   fn to_swift_struct_type(&self) -> String;
@@ -23,7 +23,9 @@ impl SwiftStructType for TSSignature<'_> {
         // by default all struct properties are `public`
         format!(
           "{}public let {}: {}",
-          INDENT_SPACE, prop_name, swift_prop_sig
+          swift_style::INDENT_SPACE,
+          prop_name,
+          swift_prop_sig
         )
       }
       _ => "".to_string(),

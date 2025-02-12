@@ -8,7 +8,7 @@ use crate::languages::{
   shared::is_async_trait::IsAsyncType,
   swift::{
     swift_fn_return_type_trait::SwiftFunctionReturnType, swift_struct_type_trait::SwiftStructType,
-    swift_style::INDENT_SPACE,
+    swift_style,
   },
 };
 
@@ -142,7 +142,11 @@ impl SwiftType for TSSignature<'_> {
 
             return format!(
               "{}func {}({}){}{}",
-              INDENT_SPACE, prop_name, fn_params, fn_return_type, optional
+              swift_style::INDENT_SPACE,
+              prop_name,
+              fn_params,
+              fn_return_type,
+              optional
             );
           }
         }
@@ -165,7 +169,12 @@ impl SwiftType for TSSignature<'_> {
         let accessor_parts = format!("{} {{ {}{} }}", optional, get_set_value, async_values);
         let swift_prop_sig = format!("{}{}", type_annotation, accessor_parts);
 
-        format!("{}var {}: {}", INDENT_SPACE, prop_name, swift_prop_sig)
+        format!(
+          "{}var {}: {}",
+          swift_style::INDENT_SPACE,
+          prop_name,
+          swift_prop_sig
+        )
       }
       TSSignature::TSMethodSignature(val) => {
         let params = val.params.to_swift_type();
@@ -179,7 +188,10 @@ impl SwiftType for TSSignature<'_> {
         let func_name = val.key.to_swift_type();
         format!(
           "{}func {}({}){}",
-          INDENT_SPACE, func_name, params, return_type
+          swift_style::INDENT_SPACE,
+          func_name,
+          params,
+          return_type
         )
       }
       _ => "// unknown-signature".to_owned(),
@@ -272,7 +284,7 @@ impl SwiftType for TSEnumDeclaration<'_> {
     let enum_cases: String = self
       .members
       .iter()
-      .map(|x| format!("{}case {}", INDENT_SPACE, x.to_swift_type()))
+      .map(|x| format!("{}case {}", swift_style::INDENT_SPACE, x.to_swift_type()))
       .collect::<Vec<_>>()
       .join("\n");
 
