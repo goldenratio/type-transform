@@ -1,6 +1,7 @@
 use oxc_ast::ast::{
-  BindingPatternKind, FormalParameters, PropertyKey, Statement, TSEnumDeclaration, TSEnumMember,
-  TSEnumMemberName, TSFunctionType, TSInterfaceDeclaration, TSSignature, TSType, TSTypeReference,
+  BindingPatternKind, Declaration, ExportNamedDeclaration, FormalParameters, PropertyKey,
+  Statement, TSEnumDeclaration, TSEnumMember, TSEnumMemberName, TSFunctionType,
+  TSInterfaceDeclaration, TSSignature, TSType, TSTypeReference,
 };
 
 use crate::languages::{kotlin::kotlin_style, shared::is_async_trait::IsAsyncType};
@@ -232,6 +233,26 @@ impl KotlinType for TSInterfaceDeclaration<'_> {
   }
 }
 
+impl KotlinType for Declaration<'_> {
+  fn to_kotlin_type(&self) -> String {
+    match self {
+      Declaration::TSInterfaceDeclaration(interface_decl) => interface_decl.to_kotlin_type(),
+      Declaration::TSEnumDeclaration(enum_decl) => enum_decl.to_kotlin_type(),
+      _ => "// unknown-declartion".to_string(),
+    }
+  }
+}
+
+impl KotlinType for ExportNamedDeclaration<'_> {
+  fn to_kotlin_type(&self) -> String {
+    self
+      .declaration
+      .as_ref()
+      .map(|d| d.to_kotlin_type())
+      .unwrap_or_else(|| "// unknown-export-named-declaration".to_string())
+  }
+}
+
 impl KotlinType for TSEnumMember<'_> {
   fn to_kotlin_type(&self) -> String {
     match &self.id {
@@ -258,6 +279,7 @@ impl KotlinType for TSEnumDeclaration<'_> {
 impl KotlinType for Statement<'_> {
   fn to_kotlin_type(&self) -> String {
     match self {
+      Statement::ExportNamedDeclaration(export_decl) => export_decl.to_kotlin_type(),
       Statement::TSInterfaceDeclaration(interface_decl) => interface_decl.to_kotlin_type(),
       Statement::TSEnumDeclaration(enum_decl) => enum_decl.to_kotlin_type(),
       _ => "// unknown-statement".to_string(),
