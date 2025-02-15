@@ -653,7 +653,7 @@ dependencies = [
 
 [[package]]
 name = "type-transform"
-version = "0.1.0"
+version = "0.0.1"
 dependencies = [
  "clap",
  "oxc_allocator",
