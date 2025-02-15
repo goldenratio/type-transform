@@ -1,6 +1,6 @@
 use oxc_ast::ast::{
-  BindingPatternKind, FormalParameters, PropertyKey, Statement, TSFunctionType,
-  TSInterfaceDeclaration, TSSignature, TSType, TSTypeReference,
+  BindingPatternKind, FormalParameters, PropertyKey, Statement, TSEnumDeclaration, TSEnumMember,
+  TSEnumMemberName, TSFunctionType, TSInterfaceDeclaration, TSSignature, TSType, TSTypeReference,
 };
 
 use crate::languages::{kotlin::kotlin_style, shared::is_async_trait::IsAsyncType};
@@ -232,10 +232,34 @@ impl KotlinType for TSInterfaceDeclaration<'_> {
   }
 }
 
+impl KotlinType for TSEnumMember<'_> {
+  fn to_kotlin_type(&self) -> String {
+    match &self.id {
+      TSEnumMemberName::Identifier(enum_id) => enum_id.to_string(),
+      TSEnumMemberName::String(enum_string) => enum_string.to_string(),
+    }
+  }
+}
+
+impl KotlinType for TSEnumDeclaration<'_> {
+  fn to_kotlin_type(&self) -> String {
+    let enum_name = self.id.to_string();
+    let enum_cases: String = self
+      .members
+      .iter()
+      .map(|x| format!("{}{}", kotlin_style::INDENT_SPACE, x.to_kotlin_type()))
+      .collect::<Vec<_>>()
+      .join("\n");
+
+    format!("enum class {} {{ \n{}\n}}\n", enum_name, enum_cases)
+  }
+}
+
 impl KotlinType for Statement<'_> {
   fn to_kotlin_type(&self) -> String {
     match self {
       Statement::TSInterfaceDeclaration(interface_decl) => interface_decl.to_kotlin_type(),
+      Statement::TSEnumDeclaration(enum_decl) => enum_decl.to_kotlin_type(),
       _ => "// unknown-statement".to_string(),
     }
   }
