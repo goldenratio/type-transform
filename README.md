@@ -4,7 +4,7 @@
 
 ## Usage
 
-```
+```sh
 type-transform <SRC> --out <OUT>
 ```
 
@@ -28,3 +28,16 @@ type-transform hello-world.ts --out hello-world.swift
 
 - Swift
 - Kotlin
+
+
+## Build
+
+```sh
+cargo build --release
+```
+
+## Install
+
+### Pre-built Binaries
+Checkout releases for binaries,
+https://github.com/goldenratio/type-transform/releases
