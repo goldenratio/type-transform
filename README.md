@@ -13,9 +13,11 @@ Arguments:
   <SRC>  Input file name
 
 Options:
-  -o, --out <OUT>  The output file. Target language is inferred from file extension
-  -h, --help       Print help
-  -V, --version    Print version
+  -o, --out <OUT>        The output file. Target language is inferred from file extension
+  -b, --banner <BANNER>  A banner to be added to the generated file, this can be a package path for "kotlin", a custom auto code generated message or a comment block such as a license for the code
+  -f, --footer <FOOTER>  A footer to be added to the generated file, this can be something like a comment block for a license or just a fun easter egg
+  -h, --help             Print help
+  -V, --version          Print version
 
 ```
 
