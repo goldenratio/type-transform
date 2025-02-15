@@ -2,7 +2,7 @@
 
 > Convert TypeScript types to other language types
 
-## Usage
+### Usage
 
 ```sh
 type-transform <SRC> --out <OUT>
@@ -24,20 +24,20 @@ Example:
 type-transform hello-world.ts --out hello-world.swift
 ```
 
-## Supported Target Languages
+### Supported Target Languages
 
 - Swift
 - Kotlin
 
 
-## Build
+### Build
 
 ```sh
 cargo build --release
 ```
 
-## Install
+### Install
 
-### Pre-built Binaries
+#### Pre-built Binaries
 Checkout releases for binaries,
 https://github.com/goldenratio/type-transform/releases
