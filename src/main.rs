@@ -61,8 +61,8 @@ fn main() {
   //   println!("{s}");
   // }
 
-  println!("AST:");
-  println!("{}", serde_json::to_string_pretty(&program).unwrap());
+  // println!("AST:");
+  // println!("{}", serde_json::to_string_pretty(&program).unwrap());
 
   if ret.errors.is_empty() {
     let transformed_code = LanguageFactory::transform(&destination_language, &program);
