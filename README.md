@@ -24,7 +24,7 @@ Example:
 type-transform hello-world.ts --out hello-world.swift
 ```
 
-### Supported Target Languages
+## Supported Target Languages
 
 - Swift
 - Kotlin
