@@ -28,8 +28,8 @@ type-transform hello-world.ts --out hello-world.swift
 
 ### Supported Target Languages
 
-- Swift
-- Kotlin
+- Swift (.swift)
+- Kotlin (.kt)
 
 
 ### Build
