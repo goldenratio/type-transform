@@ -19,17 +19,17 @@ struct Args {
   src: String,
 
   /// The output file. Target language is inferred from file extension
-  #[arg(short, long)]
+  #[arg(long)]
   out: String,
 
   /// A banner to be added to the generated file, this can be a package path for "kotlin",
   /// a custom auto code generated message or a comment block such as a license for the code.
-  #[arg(short, long)]
+  #[arg(long)]
   banner: Option<String>,
 
   /// A footer to be added to the generated file, this can be something like a
   /// comment block for a license or just a fun easter egg.
-  #[arg(short, long)]
+  #[arg(long)]
   footer: Option<String>,
 }
 
