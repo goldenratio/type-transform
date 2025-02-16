@@ -26,6 +26,19 @@ Example:
 type-transform hello-world.ts --out hello-world.swift
 ```
 
+Example Usage of a Banner:
+
+```sh
+#!/usr/bin/env bash
+
+set -e
+
+DATE=$(date +%Y-%m-%dT%H:%M:%S%z)
+
+
+type-transform ts-files/hello-world.ts -o gen/hello-world.kt -b "// Hello World\n// This code was auto generated at ${DATE} \npackage com.github.goldenratio\n"
+
+```
 ### Supported Target Languages
 
 - Swift (.swift)
