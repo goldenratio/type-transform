@@ -6,6 +6,8 @@ use oxc_ast::ast::{
 
 use crate::languages::{kotlin::kotlin_style, shared::is_async_trait::IsAsyncType};
 
+use super::kotlin_is_interface_type_trait::KotlinIsInterfaceType;
+
 pub trait KotlinType {
   fn to_kotlin_type(&self) -> String;
 }
@@ -221,15 +223,28 @@ impl KotlinType for TSInterfaceDeclaration<'_> {
   fn to_kotlin_type(&self) -> String {
     let interface_name = self.id.name.to_string();
 
-    let body_data = self
-      .body
-      .body
-      .iter()
-      .map(|signature| signature.to_kotlin_type())
-      .collect::<Vec<_>>()
-      .join("\n");
+    let is_interface = self.is_kotlin_interface_type();
 
-    format!("interface {} {{\n{}\n}}\n\n", interface_name, body_data)
+    if is_interface {
+      let body_data = self
+        .body
+        .body
+        .iter()
+        .map(|signature| signature.to_kotlin_type())
+        .collect::<Vec<_>>()
+        .join("\n");
+
+      format!("interface {} {{\n{}\n}}\n\n", interface_name, body_data)
+    } else {
+      let body_data = self
+        .body
+        .body
+        .iter()
+        .map(|signature| signature.to_kotlin_type())
+        .collect::<Vec<_>>()
+        .join(",\n");
+      format!("data class {} (\n{}\n)\n\n", interface_name, body_data)
+    }
   }
 }
 
