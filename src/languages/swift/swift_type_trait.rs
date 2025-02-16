@@ -12,6 +12,8 @@ use crate::languages::{
   },
 };
 
+use super::swift_is_protocol_type_trait::SwiftIsProtoclType;
+
 pub trait SwiftType {
   fn to_swift_type(&self) -> String;
 }
@@ -234,19 +236,8 @@ impl SwiftType for Declaration<'_> {
 
 impl SwiftType for TSInterfaceDeclaration<'_> {
   fn to_swift_type(&self) -> String {
-    let is_protocol = self.body.body.iter().any(|x| match x {
-      TSSignature::TSMethodSignature(_) => true,
-      TSSignature::TSPropertySignature(prop_sig) => {
-        if let Some(type_annotation) = &prop_sig.type_annotation {
-          matches!(type_annotation.type_annotation, TSType::TSFunctionType(_))
-        } else {
-          false
-        }
-      }
-      _ => false,
-    });
-
-    let protocol_name = self.id.name.to_string();
+    let is_protocol = self.is_swift_protocol_type();
+    let interface_name = self.id.name.to_string();
 
     if is_protocol {
       let body_data = self
@@ -257,7 +248,7 @@ impl SwiftType for TSInterfaceDeclaration<'_> {
         .collect::<Vec<_>>()
         .join("\n");
 
-      format!("protocol {} {{\n{}\n}}\n\n", protocol_name, body_data)
+      format!("protocol {} {{\n{}\n}}\n\n", interface_name, body_data)
     } else {
       let body_data = self
         .body
@@ -267,7 +258,7 @@ impl SwiftType for TSInterfaceDeclaration<'_> {
         .collect::<Vec<_>>()
         .join("\n");
 
-      format!("struct {} {{\n{}\n}}\n\n", protocol_name, body_data)
+      format!("struct {} {{\n{}\n}}\n\n", interface_name, body_data)
     }
   }
 }
