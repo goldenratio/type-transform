@@ -51,8 +51,20 @@ type-transform ts-files/hello-world.ts -o gen/hello-world.kt -b "// Hello World\
 cargo build --release
 ```
 
-### Install
+## Install
 
-#### Pre-built Binaries
+### Pre-built Binaries
 Checkout releases for binaries,
 https://github.com/goldenratio/type-transform/releases
+
+
+## Releasing Type-Transform
+
+```
+cargo release <VERSION LEVEL> --execute --no-publish
+```
+
+Where `<VERSION LEVEL>` is one of `major`, `minor`, or `patch`
+
+Next you need to manually make the release in github from the tag. This will kick off the build process
+to build all the releases assets and store them on the release in github. 
