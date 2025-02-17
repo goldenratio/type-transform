@@ -1,3 +1,4 @@
+pub mod swift_enum_display_type_trait;
 pub mod swift_fn_return_type_trait;
 pub mod swift_is_protocol_type_trait;
 pub mod swift_struct_type_trait;

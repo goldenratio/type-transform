@@ -5,7 +5,7 @@ use oxc_ast::ast::{
 };
 
 use crate::languages::{
-  kotlin::kotlin_style,
+  kotlin::{kotlin_enum_display_type_trait::KotlinEnumDisplayType, kotlin_style},
   shared::{
     enum_trait::{GetEnumDisplayValue, IsEnumWithInitializerType},
     is_async_trait::IsAsyncType,
@@ -303,7 +303,7 @@ impl KotlinType for TSEnumDeclaration<'_> {
         })
         .collect::<Vec<_>>()
         .join("\n");
-      let enum_type = self.get_enum_display_type();
+      let enum_type = self.to_kotlin_enum_display_type();
       format!(
         "enum class {}(val value: {}) {{ \n{}\n}}\n",
         enum_name, enum_type, enum_cases

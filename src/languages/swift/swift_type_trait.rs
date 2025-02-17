@@ -10,6 +10,7 @@ use crate::languages::{
     is_async_trait::IsAsyncType,
   },
   swift::{
+    swift_enum_display_type_trait::SwiftEnumDisplayType,
     swift_fn_return_type_trait::SwiftFunctionReturnType, swift_struct_type_trait::SwiftStructType,
     swift_style,
   },
@@ -313,7 +314,7 @@ impl SwiftType for TSEnumDeclaration<'_> {
         })
         .collect::<Vec<_>>()
         .join("\n");
-      let enum_type = self.get_enum_display_type();
+      let enum_type = self.to_swift_enum_display_type();
       format!(
         "enum {}: {}, CaseIterable {{ \n{}\n}}\n",
         enum_name, enum_type, enum_cases
