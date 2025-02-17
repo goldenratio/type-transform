@@ -35,7 +35,7 @@ set -e
 DATE=$(date +%Y-%m-%dT%H:%M:%S%z)
 
 
-type-transform ts-files/hello-world.ts -out gen/hello-world.kt -banner "// Hello World\n// This code was auto generated at ${DATE} \npackage com.github.goldenratio\n"
+type-transform ts-files/hello-world.ts --out gen/hello-world.kt --banner "// Hello World\n// This code was auto generated at ${DATE} \npackage com.github.goldenratio\n"
 
 ```
 ### Supported Target Languages
