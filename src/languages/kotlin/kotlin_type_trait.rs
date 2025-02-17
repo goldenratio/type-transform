@@ -4,7 +4,13 @@ use oxc_ast::ast::{
   TSInterfaceDeclaration, TSSignature, TSType, TSTypeReference,
 };
 
-use crate::languages::{kotlin::kotlin_style, shared::is_async_trait::IsAsyncType};
+use crate::languages::{
+  kotlin::kotlin_style,
+  shared::{
+    enum_trait::{GetEnumDisplayValue, IsEnumWithInitializerType},
+    is_async_trait::IsAsyncType,
+  },
+};
 
 use super::kotlin_is_interface_type_trait::KotlinIsInterfaceType;
 
@@ -280,14 +286,38 @@ impl KotlinType for TSEnumMember<'_> {
 impl KotlinType for TSEnumDeclaration<'_> {
   fn to_kotlin_type(&self) -> String {
     let enum_name = self.id.to_string();
-    let enum_cases: String = self
-      .members
-      .iter()
-      .map(|x| format!("{}{}", kotlin_style::INDENT_SPACE, x.to_kotlin_type()))
-      .collect::<Vec<_>>()
-      .join("\n");
+    if self.is_enum_with_initializer_type() {
+      let enum_cases: String = self
+        .members
+        .iter()
+        .map(|x| {
+          format!(
+            "{}{}({})",
+            kotlin_style::INDENT_SPACE,
+            x.to_kotlin_type(),
+            x.initializer
+              .as_ref()
+              .expect("Unable get initializer value from enum")
+              .get_enum_display_value()
+          )
+        })
+        .collect::<Vec<_>>()
+        .join("\n");
+      let enum_type = self.get_enum_display_type();
+      format!(
+        "enum class {}(val value: {}) {{ \n{}\n}}\n",
+        enum_name, enum_type, enum_cases
+      )
+    } else {
+      let enum_cases: String = self
+        .members
+        .iter()
+        .map(|x| format!("{}{}", kotlin_style::INDENT_SPACE, x.to_kotlin_type()))
+        .collect::<Vec<_>>()
+        .join("\n");
 
-    format!("enum class {} {{ \n{}\n}}\n", enum_name, enum_cases)
+      format!("enum class {} {{ \n{}\n}}\n", enum_name, enum_cases)
+    }
   }
 }
 
