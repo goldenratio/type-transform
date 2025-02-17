@@ -5,7 +5,10 @@ use oxc_ast::ast::{
 };
 
 use crate::languages::{
-  shared::is_async_trait::IsAsyncType,
+  shared::{
+    enum_trait::{GetEnumDisplayValue, IsEnumWithInitializerType},
+    is_async_trait::IsAsyncType,
+  },
   swift::{
     swift_fn_return_type_trait::SwiftFunctionReturnType, swift_struct_type_trait::SwiftStructType,
     swift_style,
@@ -292,17 +295,42 @@ impl SwiftType for TSEnumMember<'_> {
 impl SwiftType for TSEnumDeclaration<'_> {
   fn to_swift_type(&self) -> String {
     let enum_name = self.id.to_string();
-    let enum_cases: String = self
-      .members
-      .iter()
-      .map(|x| format!("{}case {}", swift_style::INDENT_SPACE, x.to_swift_type()))
-      .collect::<Vec<_>>()
-      .join("\n");
 
-    format!(
-      "enum {}: Int, CaseIterable {{ \n{}\n}}\n",
-      enum_name, enum_cases
-    )
+    if self.is_enum_with_initializer_type() {
+      let enum_cases: String = self
+        .members
+        .iter()
+        .map(|x| {
+          format!(
+            "{}case {} = {}",
+            swift_style::INDENT_SPACE,
+            x.to_swift_type(),
+            x.initializer
+              .as_ref()
+              .expect("Unable get initializer value from enum")
+              .get_enum_display_value()
+          )
+        })
+        .collect::<Vec<_>>()
+        .join("\n");
+      let enum_type = self.get_enum_display_type();
+      format!(
+        "enum {}: {}, CaseIterable {{ \n{}\n}}\n",
+        enum_name, enum_type, enum_cases
+      )
+    } else {
+      let enum_cases: String = self
+        .members
+        .iter()
+        .map(|x| format!("{}case {}", swift_style::INDENT_SPACE, x.to_swift_type()))
+        .collect::<Vec<_>>()
+        .join("\n");
+
+      format!(
+        "enum {}: Int, CaseIterable {{ \n{}\n}}\n",
+        enum_name, enum_cases
+      )
+    }
   }
 }
 
