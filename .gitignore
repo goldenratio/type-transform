@@ -2,5 +2,6 @@
 /ts-files
 /gen
 run.sh
+prod.sh
 build.sh
 temp.json

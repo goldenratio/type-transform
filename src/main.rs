@@ -38,7 +38,7 @@ fn main() {
 
   let path = Path::new(&args.src);
   let source_text = fs::read_to_string(path)
-    .map_err(|_| format!("Unable to read source file: {}", &args.src))
+    .map_err(|_| format!("Error: Unable to read source file: {}", &args.src))
     .unwrap();
 
   let source_type = SourceType::from_path(path).unwrap();
@@ -51,18 +51,16 @@ fn main() {
     .parse();
 
   let program = ret.program;
-  let destination_language =
-    get_language_from_file_name(&args.out).expect("unable to detect target language from fileName");
 
-  // println!("destionation_language: {:?}", destination_language);
+  let destination_language = get_language_from_file_name(&args.out).unwrap_or_else(|| {
+    panic!(
+      "Error: Unable to detect target language from fileName: {}",
+      &args.out
+    )
+  });
 
-  // for comment in &program.comments {
-  //   let s = comment.content_span().source_text(&source_text);
-  //   println!("{s}");
-  // }
-
-  // println!("AST:");
-  // println!("{}", serde_json::to_string_pretty(&program).unwrap());
+  #[cfg(debug_assertions)]
+  println!("AST: \n{}", serde_json::to_string_pretty(&program).unwrap());
 
   if ret.errors.is_empty() {
     let transformed_code = LanguageFactory::transform(&destination_language, &program);
@@ -74,14 +72,14 @@ fn main() {
 
     let res = fs::write(out_path, updated_content);
     match res {
-      Ok(_) => println!("success"),
-      Err(_) => println!("failed to write to file!!"),
+      Ok(_) => println!("Success"),
+      Err(_) => panic!("Failed to write to file!!"),
     }
   } else {
     for error in ret.errors {
       let error = error.with_source_code(source_text.clone());
-      println!("{error:?}");
-      println!("Parsed with Errors.");
+      eprintln!("AST Parse Error: {error:?}");
     }
+    panic!("Error parsing TypeScipt AST");
   }
 }
