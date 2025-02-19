@@ -1,4 +1,5 @@
-import { spawn } from 'node:child_process';
+import { exec } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 
 import { getExePath } from './get-exe-path.js';
 
@@ -25,13 +26,14 @@ export function transform(srcFilePath, outFilePath, options = {}) {
       args.push(`--footer ${options.footer}`);
     }
 
-    const child = spawn(exePath, args, { stdio: 'inherit' });
-    child.on('close', (code) => {
-      if (code !== 0) {
+    const cmd = `${fileURLToPath(exePath)} ${args.join(' ')}`;
+    exec(cmd, (err) => {
+      if (err) {
         resolve({ success: false });
       } else {
         resolve({ success: true });
       }
     });
+
   });
 }

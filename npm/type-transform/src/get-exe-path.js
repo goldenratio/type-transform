@@ -16,7 +16,7 @@ export function getExePath() {
     extension = '.exe';
   }
 
-  const binPath = `@goldenration/type-transform-${os}-${arch}/bin/type-transform${extension}`;
+  const binPath = `@goldenratio/type-transform-${os}-${arch}/bin/type-transform${extension}`;
 
   try {
     return import.meta.resolve(binPath);

@@ -1,20 +1,28 @@
 #!/usr/bin/env node
 
-import { spawn } from 'node:child_process';
+import { exec } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 
 import { getExePath } from './get-exe-path.js';
 
 async function main() {
-  const args = process.argv.slice(2);
-  console.log('cli args: ', args);
-  const exePath = getExePath();
+  return new Promise(resolve => {
 
-  const child = spawn(exePath, args, { stdio: 'inherit' });
-  child.on('close', (code) => {
-    if (code !== 0) {
-      process.exit(1);
-    }
+    const args = process.argv.slice(2);
+    console.log('cli args: ', args);
+
+    const exePath = getExePath();
+
+    const cmd = `${fileURLToPath(exePath)} ${args.join(' ')}`;
+    exec(cmd, (err) => {
+      if (err) {
+        resolve({ success: false });
+      } else {
+        resolve({ success: true });
+      }
+    });
   });
+
 }
 
 main();
