@@ -1,6 +1,10 @@
 /target
 /ts-files
 /gen
+.env
+./npm/downloads
+
+# dev stuff
 run.sh
 build.sh
 temp.json
