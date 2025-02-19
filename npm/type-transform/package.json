@@ -1,0 +1,23 @@
+{
+  "name": "@goldenratio/type-transform",
+  "version": "0.0.1",
+  "description": "Convert TypeScript types to Swift/Kotlin types",
+  "homepage": "https://github.com/goldenratio/type-transform",
+  "bugs": {
+    "url": "https://github.com/goldenratio/type-transform/discussions"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/goldenratio/type-transform.git"
+  },
+  "author": "Karthik VJ",
+  "license": "MIT",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "optionalDependencies": {
+    "@goldenratio/type-transform-linux-x64": "0.0.1"
+  }
+}
