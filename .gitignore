@@ -3,6 +3,7 @@
 /gen
 .env
 npm/downloads
+npm/type-transform-*
 
 # dev stuff
 run.sh

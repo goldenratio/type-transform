@@ -12,12 +12,21 @@
   },
   "author": "Karthik VJ",
   "license": "MIT",
-  "main": "index.js",
   "type": "module",
+  "main": "src/index.js",
+  "module": "src/index.js",
+  "types": "src/index.d.ts",
+  "bin": "src/cli.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "files": [
+    "src/"
+  ],
   "optionalDependencies": {
-    "@goldenratio/type-transform-linux-x64": "0.0.1"
+    "@goldenratio/type-transform-linux-x64": "0.0.1",
+    "@goldenratio/type-transform-darwin-arm64": "0.0.1",
+    "@goldenratio/type-transform-darwin-x64": "0.0.1",
+    "@goldenratio/type-transform-windows-x64": "0.0.1"
   }
 }

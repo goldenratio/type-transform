@@ -4,18 +4,14 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { exec } from 'node:child_process';
-import { pipeline } from 'stream/promises';
+import { pipeline } from 'node:stream/promises';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const DOWNLOAD_DIR = path.join(__dirname, 'downloads');
 
-const GITHUB_API = 'https://api.github.com/repos/goldenratio/type-transform/releases/latest';
-const interestedAssets = [
-  "x86_64-unknown-linux-musl.tar.gz",
-  // "aarch64-apple-darwin.tar.gz",
-  "x86_64-apple-darwin.zip"
-];
+const DOWNLOAD_DIR = path.join(__dirname, 'downloads');
+const PACKAGE_NAME = 'type-transform';
+const GITHUB_API = `https://api.github.com/repos/goldenratio/${PACKAGE_NAME}/releases/latest`;
 
 async function downloadLatestRelease() {
   let releaseVersion = undefined;
@@ -35,14 +31,14 @@ async function downloadLatestRelease() {
     }
 
     for (const asset of release.assets) {
-      const validAsset = interestedAssets.some(v => asset.name.indexOf(v) >= 0 && asset.name.indexOf('sha256') === -1);
+      const validAsset = asset.name.indexOf('sha256sum') === -1;
       if (validAsset) {
         console.log('Downloading: ', asset.name);
         const destArchiveFilePath = path.join(DOWNLOAD_DIR, asset.name);
         await downloadFile(asset.browser_download_url, destArchiveFilePath);
         const destFolderPath = destArchiveFilePath.replace('.tar.gz', '')
           .replace('.zip', '')
-          .replace(`type-transform_${release.tag_name}_`, '')
+          .replace(`${PACKAGE_NAME}_${release.tag_name}_`, '')
           .replace('x86_64', 'x64');
 
         await extractArchive(destArchiveFilePath, destFolderPath);
@@ -98,7 +94,37 @@ async function extractArchive(src, destFolder) {
 
 async function main() {
   const { releaseVersion } = await downloadLatestRelease();
-  console.log('releaseVersion: ', releaseVersion);
+  // console.log('releaseVersion: ', releaseVersion);
+  // const releaseVersion = '0.1.5';
+  const nodePackages = [
+    { pkgSuffix: 'linux-x64', os: 'linux', cpu: 'x64', binDir: path.resolve(DOWNLOAD_DIR, 'x64-unknown-linux-musl') },
+    { pkgSuffix: 'darwin-arm64', os: 'darwin', cpu: 'arm64', binDir: path.resolve(DOWNLOAD_DIR, 'aarch64-apple-darwin') },
+    { pkgSuffix: 'darwin-x64', os: 'darwin', cpu: 'x64', binDir: path.resolve(DOWNLOAD_DIR, 'x64-apple-darwin') },
+    { pkgSuffix: 'windows-x64', os: 'win32', cpu: 'x64', binDir: path.resolve(DOWNLOAD_DIR, 'x64-pc-windows-gnu') },
+  ];
+
+  for (const pkg of nodePackages) {
+    const packageName = `${PACKAGE_NAME}-${pkg.pkgSuffix}`;
+    console.log(`Generating node package: ${packageName}`);
+    const dirPath = path.resolve(__dirname, packageName);
+    await ensureDirectory(dirPath);
+
+    const packageJSONTemplateFile = path.resolve('./package.json.tmpl');
+    let data = fs.readFileSync(packageJSONTemplateFile, { encoding: 'utf8' });
+    data = data
+      .replace('${node_pkg}', packageName)
+      .replace('${version}', releaseVersion)
+      .replace('${node_os}', pkg.os)
+      .replace('${node_cpu}', pkg.cpu);
+
+    const destPackageJSONPath = path.resolve(dirPath, 'package.json');
+    fs.writeFileSync(destPackageJSONPath, data, { encoding: 'utf8' });
+
+    const binDir = path.resolve(dirPath, 'bin');
+    await ensureDirectory(binDir);
+
+    fs.cpSync(pkg.binDir, binDir, { recursive: true });
+  }
 }
 
 main();
