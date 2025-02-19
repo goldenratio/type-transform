@@ -2,7 +2,7 @@
 /ts-files
 /gen
 .env
-./npm/downloads
+npm/downloads
 
 # dev stuff
 run.sh
