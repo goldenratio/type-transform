@@ -1,6 +1,7 @@
 /target
 /ts-files
 /gen
+node_modules
 .env
 npm/downloads
 npm/type-transform-*
