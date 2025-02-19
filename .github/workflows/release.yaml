@@ -36,7 +36,7 @@ jobs:
         run: |
           cargo build --release
       - name: tar
-        run: tar --directory=target/release -cf archive.tar.gz type-transform.exe
+        run: tar --directory=target/release -czf archive.tar.gz type-transform.exe
       - name: upload
         run: |
           $id = gh api -H "Accept: application/vnd.github+json" /repos/goldenratio/type-transform/releases/tags/${{ github.ref_name }} --jq .id
