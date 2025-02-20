@@ -56,6 +56,9 @@ cargo build --release
 Checkout releases for binaries,
 https://github.com/goldenratio/type-transform/releases
 
+### NPM
+https://www.npmjs.com/package/@goldenratio/type-transform
+
 
 ## Releasing Type-Transform
 
