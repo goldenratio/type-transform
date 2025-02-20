@@ -11,7 +11,8 @@ async function main() {
     let args = process.argv.slice(2);
     console.log('cli args: ', args);
 
-    if (args[0].toLowerCase() === '-y') {
+    const firstArg = args[0].toLowerCase().trim();
+    if (firstArg === '-y' || firstArg === '--yes' || firstArg === '--no') {
       args.shift();
     }
     console.log('cli args: ', args);
