@@ -6,21 +6,22 @@ import { fileURLToPath } from 'node:url';
 import { getExePath } from './get-exe-path.js';
 
 async function main() {
-  return new Promise(resolve => {
+  let args = process.argv.slice(2);
+  console.log('cli args: ', args);
 
-    const args = process.argv.slice(2);
-    console.log('cli args: ', args);
+  if (args[0].toLowerCase() === '-y') {
+    args.shift();
+  }
 
-    const exePath = getExePath();
+  const exePath = getExePath();
 
-    const cmd = `${fileURLToPath(exePath)} ${args.join(' ')}`;
-    exec(cmd, (err) => {
-      if (err) {
-        resolve({ success: false });
-      } else {
-        resolve({ success: true });
-      }
-    });
+  const cmd = `${fileURLToPath(exePath)} ${args.join(' ')}`;
+  exec(cmd, (err, _, stderr) => {
+    if (err) {
+      throw new Error(stderr);
+    } else {
+      // success
+    }
   });
 
 }
