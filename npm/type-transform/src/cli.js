@@ -17,11 +17,12 @@ async function main() {
     const exePath = getExePath();
 
     const cmd = `${fileURLToPath(exePath)} ${args.join(' ')}`;
-    exec(cmd, (err, _, stderr) => {
+
+    exec(cmd, (err, stdout, stderr) => {
       if (err) {
-        throw new Error(stderr);
+        console.log(stderr);
       } else {
-        // success
+        console.log(stdout);
       }
       resolve();
     });
