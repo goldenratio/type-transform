@@ -21,6 +21,6 @@ for PLATFORM in "${PLATFORMS[@]}"; do
 done
 
 # Update and publish the main package
-cd type-transform
+cd ../type-transform
 npm version "$VERSION" --no-git-tag-version
 npm publish
