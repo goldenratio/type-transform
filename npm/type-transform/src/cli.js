@@ -9,13 +9,10 @@ async function main() {
   return new Promise(resolve => {
 
     let args = process.argv.slice(2);
-    console.log('cli args: ', args);
-
-    const firstArg = args[0].toLowerCase().trim();
-    if (firstArg === '-y' || firstArg === '--yes' || firstArg === '--no') {
-      args.shift();
-    }
-    console.log('cli args: ', args);
+    args = args
+      .filter(val => val.toLowerCase().trim() !== '--yes')
+      .filter(val => val.toLowerCase().trim() !== '--no')
+      .filter(val => val.toLowerCase().trim() !== '--y');
 
     const exePath = getExePath();
 
