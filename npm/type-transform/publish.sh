@@ -2,6 +2,12 @@
 
 set -euo pipefail
 
+# Ensure a version argument is provided
+if [[ $# -lt 1 ]]; then
+  echo "Usage: $0 <version>"
+  exit 1
+fi
+
 VERSION="$1"
 
 echo "Publishing Version: $VERSION"
