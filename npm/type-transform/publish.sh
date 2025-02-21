@@ -17,7 +17,7 @@ PLATFORMS=(
 # Publish each platform
 for PLATFORM in "${PLATFORMS[@]}"; do
   echo "Publishing $PLATFORM..."
-  (cd "$PLATFORM" && npm publish)
+  (cd "../$PLATFORM" && npm publish)
 done
 
 # Update and publish the main package
