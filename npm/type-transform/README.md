@@ -25,5 +25,6 @@ npx @goldenratio/type-transform@latest --yes ./ts-files/hello-world.ts --out ./g
 
 ### Releasing NPM Package(s)
 
-- Run `node ./build-dependencies.js` - This will build OS specific npm packages
-- Run `./publish.sh <VERSION>` - This will publish those binaries and root package to NPM
+- Run `./build-dependencies.js` - This will build OS specific npm packages
+
+- Run `./publish.sh <VERSION>` - (example: `./publish.sh 0.1.2`) This will publish those binaries and root package to NPM. The previous build step will print version, that needs to be published.
