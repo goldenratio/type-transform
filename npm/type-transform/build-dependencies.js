@@ -9,7 +9,7 @@ import { pipeline } from 'node:stream/promises';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const DOWNLOAD_DIR = path.join(__dirname, 'downloads');
+const DOWNLOAD_DIR = path.join(__dirname, '../', 'downloads');
 const PACKAGE_NAME = 'type-transform';
 const GITHUB_API = `https://api.github.com/repos/goldenratio/${PACKAGE_NAME}/releases/latest`;
 
@@ -106,10 +106,10 @@ async function main() {
   for (const pkg of nodePackages) {
     const packageName = `${PACKAGE_NAME}-${pkg.pkgSuffix}`;
     console.log(`Generating node package: ${packageName}`);
-    const dirPath = path.resolve(__dirname, packageName);
+    const dirPath = path.resolve(__dirname, '../', packageName);
     await ensureDirectory(dirPath);
 
-    const packageJSONTemplateFile = path.resolve('./package.json.tmpl');
+    const packageJSONTemplateFile = path.resolve('../package.json.tmpl');
     let data = fs.readFileSync(packageJSONTemplateFile, { encoding: 'utf8' });
     data = data
       .replace('${node_pkg}', packageName)

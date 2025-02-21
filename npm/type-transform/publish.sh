@@ -13,3 +13,9 @@ npm publish
 
 cd ../type-transform-windows-x64
 npm publish
+
+cd ../type-transform
+
+npm version 1.0.0 --no-git-tag-version
+
+npm publish
