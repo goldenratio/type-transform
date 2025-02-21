@@ -28,6 +28,13 @@ done
 
 # Update and publish the main package
 cd ../type-transform
+
+# Update dependencies version
+for PLATFORM in "${PLATFORMS[@]}"; do
+  npm install "@goldenratio/$PLATFORM@$VERSION" --save-exact --save-optional
+done
+
+npm install
 npm version "$VERSION" --no-git-tag-version
 npm publish
 
