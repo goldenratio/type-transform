@@ -1,21 +1,26 @@
 #!/usr/bin/env bash
 
-set -e
+set -euo pipefail
 
-cd ./type-transform-linux-x64
-npm publish
+VERSION="$1"
 
-cd ../type-transform-darwin-arm64
-npm publish
+echo "Publishing Version: $VERSION"
 
-cd ../type-transform-darwin-x64
-npm publish
+# List of directories to publish
+PLATFORMS=(
+  "type-transform-linux-x64"
+  "type-transform-darwin-arm64"
+  "type-transform-darwin-x64"
+  "type-transform-windows-x64"
+)
 
-cd ../type-transform-windows-x64
-npm publish
+# Publish each platform
+for PLATFORM in "${PLATFORMS[@]}"; do
+  echo "Publishing $PLATFORM..."
+  (cd "$PLATFORM" && npm publish)
+done
 
-cd ../type-transform
-
-npm version 1.0.0 --no-git-tag-version
-
+# Update and publish the main package
+cd type-transform
+npm version "$VERSION" --no-git-tag-version
 npm publish

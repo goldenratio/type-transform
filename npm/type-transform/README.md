@@ -25,8 +25,5 @@ npx @goldenratio/type-transform@latest --yes ./ts-files/hello-world.ts --out ./g
 
 ### Releasing NPM Package(s)
 
-- Run `node ./build-bin.js` from parent folder - This will assemble OS specific binaries
-- Run `./publish-bin.sh` - This will publish those binaries to npm
-- Bump versions in `package.json` (current folder) and perform `npm i`
-- Git commit those changes
-- Run `npm publish`
+- Run `node ./build-dependencies.js` - This will build OS specific npm packages
+- Run `./publish.sh <VERSION>` - This will publish those binaries and root package to NPM

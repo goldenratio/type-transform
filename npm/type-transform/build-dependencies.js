@@ -95,7 +95,7 @@ async function extractArchive(src, destFolder) {
 async function main() {
   const { releaseVersion } = await downloadLatestRelease();
   // console.log('releaseVersion: ', releaseVersion);
-  // const releaseVersion = '0.1.5';
+  // const releaseVersion = '0.0.9';
   const nodePackages = [
     { pkgSuffix: 'linux-x64', os: 'linux', cpu: 'x64', binDir: path.resolve(DOWNLOAD_DIR, 'x64-unknown-linux-musl') },
     { pkgSuffix: 'darwin-arm64', os: 'darwin', cpu: 'arm64', binDir: path.resolve(DOWNLOAD_DIR, 'aarch64-apple-darwin') },
@@ -125,6 +125,8 @@ async function main() {
 
     fs.cpSync(pkg.binDir, binDir, { recursive: true });
   }
+
+  console.log(`Finished geenrating dependencies for version: ${releaseVersion}`);
 }
 
 main();
