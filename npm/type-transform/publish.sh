@@ -24,3 +24,6 @@ done
 cd ../type-transform
 npm version "$VERSION" --no-git-tag-version
 npm publish
+
+git commit -m "core: release NPM version ${VERSION}"
+git push
