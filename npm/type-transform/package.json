@@ -24,10 +24,10 @@
     "src/"
   ],
   "optionalDependencies": {
-    "@goldenratio/type-transform-linux-x64": "0.0.3",
-    "@goldenratio/type-transform-windows-x64": "0.0.3",
-    "@goldenratio/type-transform-darwin-x64": "0.0.3",
-    "@goldenratio/type-transform-darwin-arm64": "0.0.3"
+    "@goldenratio/type-transform-darwin-arm64": "0.1.2",
+    "@goldenratio/type-transform-darwin-x64": "0.1.2",
+    "@goldenratio/type-transform-linux-x64": "0.1.2",
+    "@goldenratio/type-transform-windows-x64": "0.1.2"
   },
   "publishConfig": {
     "access": "public"
