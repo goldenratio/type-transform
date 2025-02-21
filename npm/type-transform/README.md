@@ -20,7 +20,7 @@ console.log(success);
 ### NPX Usage
 
 ```sh
-npx @goldenratio/type-transform@latest --yes ./ts-files/hello-world.ts --out ./gen/HelloWorld.swift
+npx @goldenratio/type-transform@latest ./ts-files/hello-world.ts --out ./gen/HelloWorld.swift
 ```
 
 ### Releasing NPM Package(s)
