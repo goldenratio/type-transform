@@ -70,6 +70,10 @@ fn main() {
 
     let updated_content = format!("{}{}{}", banner, transformed_code, footer);
 
+    if let Some(parent) = out_path.parent() {
+      fs::create_dir_all(parent).expect("Unable to create parent directoy");
+    }
+
     let res = fs::write(out_path, updated_content);
     match res {
       Ok(_) => println!("Success"),
