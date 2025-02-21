@@ -26,5 +26,5 @@ npm version "$VERSION" --no-git-tag-version
 npm publish
 
 git add .
-git commit -m "core: release NPM version ${VERSION}"
+git commit -m "chore: release NPM version ${VERSION}"
 git push
