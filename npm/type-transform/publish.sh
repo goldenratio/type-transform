@@ -2,15 +2,25 @@
 
 set -euo pipefail
 
-# Ensure a version argument is provided
-if [[ $# -lt 1 ]]; then
-  echo "Usage: $0 <version>"
+# Get the latest Git tag
+VERSION=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+
+if [[ -z "$VERSION" ]]; then
+  echo "No Git tags found. Please create a tag first."
   exit 1
 fi
 
-VERSION="$1"
+# Strip the 'v' prefix if present
+VERSION=${VERSION#v}
 
 echo "Publishing Version: $VERSION"
+
+read -p "Are you sure you want to publish this version? (y/N): " CONFIRM
+
+if [[ "$CONFIRM" != "y" ]]; then
+  echo "Publishing canceled."
+  exit 0
+fi
 
 # List of directories to publish
 PLATFORMS=(

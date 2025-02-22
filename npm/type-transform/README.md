@@ -27,4 +27,4 @@ npx @goldenratio/type-transform@latest ./ts-files/hello-world.ts --out ./gen/Hel
 
 - Run `./build-dependencies.js` - This will build OS specific npm packages
 
-- Run `./publish.sh <VERSION>` - (example: `./publish.sh 0.1.2`) This will publish those binaries and root package to NPM. The previous build step will print version, that needs to be published.
+- Run `./publish.sh` - This will publish all OS specific binaries and main package to NPM.
