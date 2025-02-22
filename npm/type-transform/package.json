@@ -16,7 +16,9 @@
   "main": "src/index.js",
   "module": "src/index.js",
   "types": "src/index.d.ts",
-  "bin": "src/cli.js",
+  "bin": {
+    "type-transform": "src/cli.js"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
