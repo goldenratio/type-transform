@@ -1,6 +1,6 @@
 # type-transform
 
-> Convert TypeScript types to Swift/Kotlin types
+> Convert TypeScript types to Swift and Kotlin types
 
 ### Usage
 
