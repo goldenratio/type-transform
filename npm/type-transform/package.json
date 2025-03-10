@@ -13,6 +13,8 @@
   "author": "Karthik VJ",
   "license": "MIT",
   "type": "module",
+  "main": "./src/index.cjs",
+  "module": "./src/index.js",
   "types": "./src/index.d.ts",
   "exports": {
     ".": {
