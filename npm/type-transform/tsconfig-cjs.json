@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compileOnSave": false,
+  "compilerOptions": {
+    "outDir": "./src/cjs",
+    "noImplicitAny": true,
+    "noUnusedLocals": true,
+    "strict": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "target": "es2020",
+    "allowJs": true,
+    "baseUrl": ".",
+    "lib": [
+      "esnext",
+      "dom"
+    ]
+  },
+  "include": [
+    "./src"
+  ]
+}
