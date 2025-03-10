@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { exec } from 'node:child_process';
-import { fileURLToPath } from 'node:url';
+import { pathToFileURL } from 'node:url';
 
 import { getExePath } from './index.js';
 
@@ -16,7 +16,7 @@ async function main() {
 
     const exePath = getExePath();
 
-    const cmd = `${fileURLToPath(exePath)} ${args.join(' ')}`;
+    const cmd = `${pathToFileURL(exePath).href} ${args.join(' ')}`;
 
     exec(cmd, (err, stdout, stderr) => {
       if (err) {
