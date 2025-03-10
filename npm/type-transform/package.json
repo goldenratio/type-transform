@@ -1,6 +1,6 @@
 {
   "name": "@goldenratio/type-transform",
-  "version": "0.1.12",
+  "version": "0.1.13",
   "description": "Convert TypeScript types to Swift/Kotlin types",
   "homepage": "https://github.com/goldenratio/type-transform",
   "bugs": {
@@ -30,10 +30,10 @@
     "src/"
   ],
   "optionalDependencies": {
-    "@goldenratio/type-transform-darwin-arm64": "0.1.12",
-    "@goldenratio/type-transform-darwin-x64": "0.1.12",
-    "@goldenratio/type-transform-linux-x64": "0.1.12",
-    "@goldenratio/type-transform-windows-x64": "0.1.12"
+    "@goldenratio/type-transform-darwin-arm64": "0.1.13",
+    "@goldenratio/type-transform-darwin-x64": "0.1.13",
+    "@goldenratio/type-transform-linux-x64": "0.1.13",
+    "@goldenratio/type-transform-windows-x64": "0.1.13"
   },
   "publishConfig": {
     "access": "public"
