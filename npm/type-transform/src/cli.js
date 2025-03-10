@@ -3,7 +3,7 @@
 import { exec } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
-import { getExePath } from './get-exe-path.js';
+import { getExePath } from './index.js';
 
 async function main() {
   return new Promise(resolve => {

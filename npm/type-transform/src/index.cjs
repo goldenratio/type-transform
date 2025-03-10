@@ -1,22 +1,22 @@
-import { exec } from 'node:child_process';
-import { fileURLToPath } from 'node:url';
-import { arch as getArch, platform as getPlatform } from 'node:os';
+const { exec } = require('node:child_process');
+const { fileURLToPath } = require('node:url');
+const { arch: getArch, platform: getPlatform } = require('node:os');
 
 /**
  * Transform TypeScript types to Swift/Kotlin types
  *
- * @param {string} srcFilePath - The path to the source Typscript file to be transformed.
+ * @param {string} srcFilePath - The path to the source TypeScript file to be transformed.
  * @param {string} outFilePath - The path where the transformed file should be saved.
  * @param {Object} [options={}] - Optional parameters for transformation.
  * @param {string} [options.banner] - An optional banner string to be added to the output.
  * @param {string} [options.footer] - An optional footer string to be added to the output.
  * @returns {Promise<{ success: boolean }>} - A promise that resolves with an object indicating success or failure.
  */
-export function transform(srcFilePath, outFilePath, options = {}) {
+function transform(srcFilePath, outFilePath, options = {}) {
   return new Promise((resolve) => {
-
     const exePath = getExePath();
     const args = [srcFilePath, `--out ${outFilePath}`];
+
     if (typeof options?.banner === 'string') {
       args.push(`--banner ${options.banner}`);
     }
@@ -33,7 +33,6 @@ export function transform(srcFilePath, outFilePath, options = {}) {
         resolve({ success: true });
       }
     });
-
   });
 }
 
@@ -41,7 +40,7 @@ export function transform(srcFilePath, outFilePath, options = {}) {
  * @throws
  * @return {string}
  */
-export function getExePath() {
+function getExePath() {
   const platform = getPlatform();
   const arch = getArch();
 
@@ -56,8 +55,10 @@ export function getExePath() {
   const binPath = `@goldenratio/type-transform-${os}-${arch}/bin/type-transform${extension}`;
 
   try {
-    return import.meta.resolve(binPath);
+    return require.resolve(binPath);
   } catch (err) {
-    throw new Error(`Cannot find type transform binary! ${binPath}`, err);
+    throw new Error(`Cannot find type transform binary! ${binPath}`, { cause: err });
   }
 }
+
+module.exports = { transform, getExePath };
