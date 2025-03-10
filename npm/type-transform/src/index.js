@@ -1,5 +1,5 @@
 import { exec } from 'node:child_process';
-import { pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 import { arch as getArch, platform as getPlatform } from 'node:os';
 
 /**
@@ -25,7 +25,7 @@ export function transform(srcFilePath, outFilePath, options = {}) {
       args.push(`--footer ${options.footer}`);
     }
 
-    const cmd = `${pathToFileURL(exePath).href} ${args.join(' ')}`;
+    const cmd = `${fileURLToPath(exePath)} ${args.join(' ')}`;
     exec(cmd, (err) => {
       if (err) {
         resolve({ success: false });

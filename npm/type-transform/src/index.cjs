@@ -1,5 +1,5 @@
 const { exec } = require('node:child_process');
-const { pathToFileURL } = require('node:url');
+const { fileURLToPath } = require('node:url');
 const { arch: getArch, platform: getPlatform } = require('node:os');
 
 /**
@@ -25,7 +25,13 @@ function transform(srcFilePath, outFilePath, options = {}) {
       args.push(`--footer ${options.footer}`);
     }
 
-    const cmd = `${pathToFileURL(exePath).href} ${args.join(' ')}`;
+    let cmd = '';
+    try {
+      cmd = `${fileURLToPath(exePath)} ${args.join(' ')}`;
+    } catch (err) {
+      cmd = `${exePath} ${args.join(' ')}`;
+    }
+
     exec(cmd, (err) => {
       if (err) {
         resolve({ success: false });
