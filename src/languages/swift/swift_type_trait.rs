@@ -341,7 +341,7 @@ impl SwiftType for Statement<'_> {
       Statement::ExportNamedDeclaration(export_decl) => export_decl.to_swift_type(),
       Statement::TSInterfaceDeclaration(interface_decl) => interface_decl.to_swift_type(),
       Statement::TSEnumDeclaration(enum_decl) => enum_decl.to_swift_type(),
-      _ => "// unknown-statement".to_string(),
+      _ => "// unknown-statement\n\n".to_string(),
     }
   }
 }
