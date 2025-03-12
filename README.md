@@ -22,7 +22,7 @@ Options:
 
 Example:
 ```sh
-type-transform hello-world.ts --out hello-world.swift
+type-transform hello-world.ts --out HelloWorld.swift
 ```
 
 Example Usage of a Banner:
@@ -35,13 +35,63 @@ set -e
 DATE=$(date +%Y-%m-%dT%H:%M:%S%z)
 
 
-type-transform ts-files/hello-world.ts --out gen/hello-world.kt --banner "// Hello World\n// This code was auto generated at ${DATE} \npackage com.github.goldenratio\n"
+type-transform ts-files/hello-world.ts --out gen/HelloWorld.kt --banner "// Hello World\n// This code was auto generated at ${DATE} \npackage com.github.goldenratio\n"
 
 ```
 ### Supported Target Languages
 
 - Swift (.swift)
 - Kotlin (.kt)
+
+### Example
+
+```ts
+// hello-world.ts
+
+export interface Contract {
+  readonly currency: Promise<Currency>;
+  getFoo(): Currency;
+}
+
+enum Currency {
+  USD = 10.2,
+  EUR = 42.5
+}
+```
+
+will be converted to,
+
+```swift
+// HelloWorld.swift
+
+public protocol Contract {
+  var currency: Currency { get async throws }
+  func getFoo() -> Currency
+}
+
+enum Currency: Double, CaseIterable { 
+  case USD = 10.2
+  case EUR = 42.5
+}
+```
+
+```kotlin
+// HelloWorld.kt
+
+package com.github.goldenratio
+
+import kotlinx.coroutines.Deferred
+
+interface Contract {
+    val currency: Deferred<Currency>
+    fun getFoo(): Currency
+}
+
+enum class Currency(val value: Double) { 
+    USD(10.2)
+    EUR(42.5)
+}
+```
 
 
 ### Build
