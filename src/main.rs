@@ -71,7 +71,7 @@ fn main() {
     let updated_content = format!("{}{}{}", banner, transformed_code, footer);
 
     if let Some(parent) = out_path.parent() {
-      fs::create_dir_all(parent).expect("Unable to create parent directoy");
+      fs::create_dir_all(parent).expect("Unable to create parent directory");
     }
 
     let res = fs::write(out_path, updated_content);
@@ -84,6 +84,6 @@ fn main() {
       let error = error.with_source_code(source_text.clone());
       eprintln!("AST Parse Error: {error:?}");
     }
-    panic!("Error parsing TypeScipt AST");
+    panic!("Error parsing TypeScript AST");
   }
 }
