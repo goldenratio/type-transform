@@ -30,7 +30,7 @@ mod tests {
 
     let program = parser_ret.program;
     let transformed_code = SwiftTransformer::transform(&program);
-    println!("{}", transformed_code);
+    println!("{transformed_code}");
 
     let expected_code = r#"protocol HelloWorld {
   var color: String { get }

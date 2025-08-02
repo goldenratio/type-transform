@@ -77,7 +77,7 @@ impl SwiftType for TSTypeReference<'_> {
           .map(|x| x.to_swift_type())
           .unwrap_or_else(|| "Any".into());
 
-        format!("[{}: {}]", key_str, val_str)
+        format!("[{key_str}: {val_str}]")
       }
 
       "Set" => {
@@ -87,7 +87,7 @@ impl SwiftType for TSTypeReference<'_> {
           .and_then(|x| x.params.first())
           .map(|x| x.to_swift_type())
           .unwrap_or_else(|| "Any".into());
-        format!("{}<{}>", type_name, val_str)
+        format!("{type_name}<{val_str}>")
       }
 
       _ => type_name,
@@ -104,7 +104,7 @@ impl SwiftType for TSFunctionType<'_> {
     // Function types cannot have argument labels; use '_' before 'name'
     let ignore_arg_labels = if !fn_params.is_empty() { "_ " } else { "" };
 
-    format!("({}{}) -> {}", ignore_arg_labels, fn_params, type_name)
+    format!("({ignore_arg_labels}{fn_params}) -> {type_name}")
   }
 }
 
@@ -120,7 +120,7 @@ impl SwiftType for TSType<'_> {
       TSType::TSFunctionType(fn_type) => fn_type.to_swift_type(),
       TSType::TSArrayType(array_type) => {
         let el_type = array_type.element_type.to_swift_type();
-        format!("[{}]", el_type)
+        format!("[{el_type}]")
       }
       TSType::TSTypeOperatorType(op_type) => op_type.type_annotation.to_swift_type(),
       _ => "Any".to_string(),
@@ -195,8 +195,8 @@ impl SwiftType for TSSignature<'_> {
         };
         let async_values = if is_async { " async throws" } else { "" };
 
-        let accessor_parts = format!("{} {{ {}{} }}", optional, get_set_value, async_values);
-        let swift_prop_sig = format!("{}{}", type_annotation, accessor_parts);
+        let accessor_parts = format!("{optional} {{ {get_set_value}{async_values} }}");
+        let swift_prop_sig = format!("{type_annotation}{accessor_parts}");
 
         format!(
           "{}var {}: {}",
@@ -233,7 +233,7 @@ impl SwiftType for Declaration<'_> {
     match self {
       Declaration::TSInterfaceDeclaration(interface_decl) => interface_decl.to_swift_type(),
       Declaration::TSEnumDeclaration(enum_decl) => enum_decl.to_swift_type(),
-      _ => "// unknown-declartion".to_string(),
+      _ => "// unknown-declaration".to_string(),
     }
   }
 }
@@ -252,7 +252,7 @@ impl SwiftType for TSInterfaceDeclaration<'_> {
         .collect::<Vec<_>>()
         .join("\n");
 
-      format!("protocol {} {{\n{}\n}}\n\n", interface_name, body_data)
+      format!("protocol {interface_name} {{\n{body_data}\n}}\n\n")
     } else {
       let body_data = self
         .body
@@ -262,7 +262,7 @@ impl SwiftType for TSInterfaceDeclaration<'_> {
         .collect::<Vec<_>>()
         .join("\n");
 
-      format!("struct {} {{\n{}\n}}\n\n", interface_name, body_data)
+      format!("struct {interface_name} {{\n{body_data}\n}}\n\n")
     }
   }
 }
@@ -277,7 +277,7 @@ impl SwiftType for ExportNamedDeclaration<'_> {
         if d.starts_with("//") {
           d
         } else {
-          format!("public {}", d)
+          format!("public {d}")
         }
       })
       .unwrap_or_else(|| "// unknown-export-named-declaration".to_string())
@@ -315,10 +315,7 @@ impl SwiftType for TSEnumDeclaration<'_> {
         .collect::<Vec<_>>()
         .join("\n");
       let enum_type = self.to_swift_enum_display_type();
-      format!(
-        "enum {}: {}, CaseIterable {{ \n{}\n}}\n",
-        enum_name, enum_type, enum_cases
-      )
+      format!("enum {enum_name}: {enum_type}, CaseIterable {{ \n{enum_cases}\n}}\n")
     } else {
       let enum_cases: String = self
         .members
@@ -327,10 +324,7 @@ impl SwiftType for TSEnumDeclaration<'_> {
         .collect::<Vec<_>>()
         .join("\n");
 
-      format!(
-        "enum {}: Int, CaseIterable {{ \n{}\n}}\n",
-        enum_name, enum_cases
-      )
+      format!("enum {enum_name}: Int, CaseIterable {{ \n{enum_cases}\n}}\n")
     }
   }
 }

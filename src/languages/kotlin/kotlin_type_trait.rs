@@ -73,7 +73,7 @@ impl KotlinType for TSTypeReference<'_> {
           .map(|x| x.to_kotlin_type())
           .unwrap_or_else(|| "Any".into());
 
-        format!("Map<{}, {}>", key_str, val_str)
+        format!("Map<{key_str}, {val_str}>")
       }
 
       "Set" => {
@@ -83,7 +83,7 @@ impl KotlinType for TSTypeReference<'_> {
           .and_then(|x| x.params.first())
           .map(|x| x.to_kotlin_type())
           .unwrap_or_else(|| "Any".into());
-        format!("{}<{}>", type_name, val_str)
+        format!("{type_name}<{val_str}>")
       }
 
       _ => type_name,
@@ -97,7 +97,7 @@ impl KotlinType for TSFunctionType<'_> {
     let type_name = self.return_type.type_annotation.to_kotlin_type();
     let fn_params = self.params.to_kotlin_type();
 
-    format!("({}) -> {}", fn_params, type_name)
+    format!("({fn_params}) -> {type_name}")
   }
 }
 
@@ -113,7 +113,7 @@ impl KotlinType for TSType<'_> {
       TSType::TSFunctionType(fn_type) => fn_type.to_kotlin_type(),
       TSType::TSArrayType(array_type) => {
         let el_type = array_type.element_type.to_kotlin_type();
-        format!("List<{}>", el_type)
+        format!("List<{el_type}>")
       }
       TSType::TSTypeOperatorType(op_type) => op_type.type_annotation.to_kotlin_type(),
       _ => "Any".to_string(),
@@ -183,7 +183,7 @@ impl KotlinType for TSSignature<'_> {
 
         let prop_return_type = if prop_sig.is_async_type() {
           // TODO: `import kotlinx.coroutines.Deferred` should included in banner
-          format!("Deferred<{}>", type_annotation)
+          format!("Deferred<{type_annotation}>")
         } else {
           type_annotation.to_string()
         };
@@ -240,7 +240,7 @@ impl KotlinType for TSInterfaceDeclaration<'_> {
         .collect::<Vec<_>>()
         .join("\n");
 
-      format!("interface {} {{\n{}\n}}\n\n", interface_name, body_data)
+      format!("interface {interface_name} {{\n{body_data}\n}}\n\n")
     } else {
       let body_data = self
         .body
@@ -249,7 +249,7 @@ impl KotlinType for TSInterfaceDeclaration<'_> {
         .map(|signature| signature.to_kotlin_type())
         .collect::<Vec<_>>()
         .join(",\n");
-      format!("data class {} (\n{}\n)\n\n", interface_name, body_data)
+      format!("data class {interface_name} (\n{body_data}\n)\n\n")
     }
   }
 }
@@ -259,7 +259,7 @@ impl KotlinType for Declaration<'_> {
     match self {
       Declaration::TSInterfaceDeclaration(interface_decl) => interface_decl.to_kotlin_type(),
       Declaration::TSEnumDeclaration(enum_decl) => enum_decl.to_kotlin_type(),
-      _ => "// unknown-declartion".to_string(),
+      _ => "// unknown-declaration".to_string(),
     }
   }
 }
@@ -304,10 +304,7 @@ impl KotlinType for TSEnumDeclaration<'_> {
         .collect::<Vec<_>>()
         .join("\n");
       let enum_type = self.to_kotlin_enum_display_type();
-      format!(
-        "enum class {}(val value: {}) {{ \n{}\n}}\n",
-        enum_name, enum_type, enum_cases
-      )
+      format!("enum class {enum_name}(val value: {enum_type}) {{ \n{enum_cases}\n}}\n")
     } else {
       let enum_cases: String = self
         .members
@@ -316,7 +313,7 @@ impl KotlinType for TSEnumDeclaration<'_> {
         .collect::<Vec<_>>()
         .join("\n");
 
-      format!("enum class {} {{ \n{}\n}}\n", enum_name, enum_cases)
+      format!("enum class {enum_name} {{ \n{enum_cases}\n}}\n")
     }
   }
 }

@@ -14,11 +14,11 @@ impl KotlinTransformer {
       output.push_str(&statement_code);
     }
 
-    // TODO: for now a naive aprroach, think about better solution
+    // TODO: for now a naive accroach, think about better solution
     if output.contains("suspend ") || output.contains("Deferred") {
       import_banners.push_str("import kotlinx.coroutines.Deferred\n");
     }
 
-    format!("{}\n{}", import_banners, output)
+    format!("{import_banners}\n{output}")
   }
 }

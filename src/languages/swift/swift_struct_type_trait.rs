@@ -18,7 +18,7 @@ impl SwiftStructType for TSSignature<'_> {
 
         let prop_name = prop_sig.key.to_swift_type();
         let optional = if prop_sig.optional { "?" } else { "" };
-        let swift_prop_sig = format!("{}{}", type_annotation, optional);
+        let swift_prop_sig = format!("{type_annotation}{optional}");
 
         format!(
           "{}let {}: {}",

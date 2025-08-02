@@ -68,7 +68,7 @@ fn main() {
     let banner = parse_banner(&args.banner);
     let footer = parse_footer(&args.footer);
 
-    let updated_content = format!("{}{}{}", banner, transformed_code, footer);
+    let updated_content = format!("{banner}{transformed_code}{footer}");
 
     if let Some(parent) = out_path.parent() {
       fs::create_dir_all(parent).expect("Unable to create parent directory");

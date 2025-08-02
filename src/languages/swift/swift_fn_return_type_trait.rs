@@ -18,9 +18,9 @@ impl SwiftFunctionReturnType for TSType<'_> {
       TSType::TSTypeReference(val) => {
         let type_name = val.to_swift_type();
         if val.is_async_type() {
-          format!(" async throws -> {}", type_name)
+          format!(" async throws -> {type_name}")
         } else {
-          format!(" -> {}", type_name)
+          format!(" -> {type_name}")
         }
       }
       TSType::TSFunctionType(val) => {

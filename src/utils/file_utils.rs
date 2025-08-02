@@ -15,7 +15,7 @@ pub fn parse_banner(val: &Option<String>) -> String {
     .unwrap_or_default();
 
   if !banner.is_empty() {
-    format!("{}\n", banner)
+    format!("{banner}\n")
   } else {
     banner
   }
@@ -28,7 +28,7 @@ pub fn parse_footer(val: &Option<String>) -> String {
     .unwrap_or_default();
 
   if !footer.is_empty() {
-    format!("\n{}", footer)
+    format!("\n{footer}")
   } else {
     footer
   }
